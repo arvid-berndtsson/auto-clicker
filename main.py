@@ -15,7 +15,7 @@ def main():
         # Check if 'h' is pressed
         if keyboard.is_pressed(6):
             pyautogui.click()
-            time.sleep(0.1)
+            time.sleep(0.001)
 
 if __name__ == "__main__":
     main()

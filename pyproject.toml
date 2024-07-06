@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "auto-clicker"
+version = "0.0.2"
+description = "An auto clicker for a variety of tasks"
+authors = ["Arvid Berndtsson <arvid@dotarvid.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+PyAutoGUI = "^0.9.54"
+keyboard = "^0.13.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -36,6 +36,7 @@ jobs:
       - name: Package artifact
         env:
           RUNNER_OS: ${{ runner.os }}
+        shell: bash
         run: |
           python - <<'PY'
           import os

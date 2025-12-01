@@ -1,152 +1,127 @@
-# Arvid's Simple Auto Clicker
+# Auto Clicker
 
-## Table of Contents
-
-- [Arvid's Simple Auto Clicker](#arvids-simple-auto-clicker)
-  - [Table of Contents](#table-of-contents)
-  - [Project Overview](#project-overview)
-  - [Features](#features)
-  - [Files](#files)
-  - [Setup and Installation](#setup-and-installation)
-    - [Using Poetry](#using-poetry)
-    - [Using Virtual Environment and Pip (alternative)](#using-virtual-environment-and-pip-alternative)
-  - [Usage](#usage)
-  - [Code Improvements](#code-improvements)
-  - [License](#license)
-
-## Project Overview
-
-This project is an Auto Clicker tool written in Python. The script automates mouse clicking based on keyboard inputs. It uses the `keyboard` library to detect key presses and the `pyautogui` library to simulate mouse clicks. This tool can be particularly useful for repetitive tasks that require frequent mouse clicks.
+Cross-platform auto clicker with both CLI and GUI front-ends plus ready-to-use packaging via PyInstaller.
 
 ## Features
 
-- **Toggle Mode**: Press the `h` key to start clicking and press it again to stop.
-- **Hold Mode**: Press and hold the `h` key to continuously click the left mouse button.
-- **Double Click Mode**: Press and hold the `h` key to double click.
-- **Random Click Mode**: Press and hold the `h` key to click at random intervals.
-- **Burst Mode**: Press and hold the `h` key to click rapidly a specified number of times.
-- **Stop Script**: Press the `esc` key to stop the script entirely.
-- **Human-like Delays**: Introduce randomness in clicking delays using `--min-delay` and `--max-delay` arguments.
+- Five clicking strategies: toggle, hold, double, random, and burst.
+- Configurable click/stop hotkeys, delays, mouse button, and burst sizes.
+- Tkinter GUI for quick experimentation without touching the terminal.
+- Typer CLI with rich help text, logging controls, and completion support.
+- Built-in safety: `esc` stops the clicker and PyAutoGUI's fail-safe turns off clicks when the mouse hits a screen corner.
+- PyInstaller spec file for generating standalone executables on Windows, macOS, and Linux (build on each OS for best results).
 
-## Files
+## Repository Layout
 
-- `main.py`: The main script that runs the auto clicker.
-- `get_scancode.py`: A helper script to retrieve scancode values for different keys.
-- `pyproject.toml`: Poetry configuration file.
-- `requirements.txt`: Lists the dependencies needed to run the project.
-- `.gitignore`: Specifies files and directories to be ignored by Git.
+- `src/auto_clicker/`: Production code (CLI, GUI, engine, and utilities).
+- `main.py`: Backwards-compatible launcher that proxies to the Typer CLI.
+- `get_scancode.py`: Helper that reuses `auto_clicker.tools.scancode`.
+- `pyinstaller.spec`: Opinionated configuration for packaging.
+- `pyproject.toml` / `poetry.lock`: Project metadata and dependencies.
 
-## Setup and Installation
+## Getting Started
 
-### Using Poetry
+### Using Poetry (recommended)
 
-1. **Clone the repository**:
+```bash
+git clone <repository-url>
+cd auto-clicker-main
+poetry install
+```
 
-   ```sh
-   git clone <repository-url>
-   cd auto-clicker-main
-   ```
+Run commands inside the managed environment:
 
-2. **Install Poetry**:
+```bash
+poetry run auto-clicker run --mode hold
+poetry run auto-clicker gui
+```
 
-   ```sh
-   curl -sSL https://install.python-poetry.org | python3 -
-   ```
+### Using pip
 
-3. **Install dependencies**:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python -m auto_clicker --help
+```
 
-   ```sh
-   poetry install
-   ```
+## CLI Usage
 
-4. **Activate the virtual environment**:
-   ```sh
-   poetry shell
-   ```
+```bash
+poetry run auto-clicker run \
+  --mode burst \
+  --burst-count 25 \
+  --min-delay 0.002 \
+  --max-delay 0.008 \
+  --click-key h \
+  --stop-key esc \
+  --button left
+```
 
-### Using Virtual Environment and Pip (alternative)
+Show the installed version at any time:
 
-1. **Clone the repository**:
+```bash
+poetry run auto-clicker version
+```
 
-   ```sh
-   git clone <repository-url>
-   cd auto-clicker-main
-   ```
+Useful flags:
 
-2. **Create a virtual environment** (optional but recommended):
+- `--mode`: `toggle|hold|double|random|burst`.
+- `--min-delay` / `--max-delay`: Human-like jitter between clicks.
+- `--button`: `left`, `right`, or `middle`.
+- `-v/--verbose`: Enable debug logging for troubleshooting.
+- `auto-clicker gui`: launches the Tkinter application instead of the CLI mode.
 
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
+## GUI Usage
 
-3. **Install the required packages**:
-   ```sh
-   pip install -r requirements.txt
-   ```
+```bash
+poetry run auto-clicker gui
+```
 
-## Usage
+Configure keys, delays, and mode directly in the window. The GUI runs the clicker in a background thread and can be stopped from the UI, via the `esc` key, or by moving the mouse to the top-left corner (PyAutoGUI fail-safe).
 
-1. **Run the script in default hold mode**:
+## Packaging to Executables
 
-   ```sh
-   python main.py
-   ```
+The project ships with a ready-to-run `pyinstaller.spec`. Build commands must be executed on the target operating system to guarantee native binaries.
 
-2. **Run the script in toggle mode**:
+```bash
+# inside the poetry shell (or use `poetry run ...`)
+pyinstaller pyinstaller.spec
+```
 
-   ```sh
-   python main.py toggle
-   ```
+Results are placed in `dist/auto-clicker/` (folder) and `dist/auto-clicker.exe` on Windows.
 
-3. **Run the script in double click mode**:
+Platform tips:
 
-   ```sh
-   python main.py double
-   ```
+- **Windows:** run the above command from a Developer PowerShell or Command Prompt inside `poetry shell`. The generated `.exe` is immediately shareable.
+- **macOS:** the same command produces a `.app` bundle inside `dist/auto-clicker`. Notarization/signing is optional but recommended before distribution.
+- **Linux:** produces an ELF binary in `dist/auto-clicker`. Make sure it is marked executable (`chmod +x` if copied elsewhere).
 
-4. **Run the script in random click mode**:
+For reproducible builds or custom icons, tweak `pyinstaller.spec` (e.g., `icon='assets/icon.ico'`) and rerun the command. Distribute the contents of `dist/auto-clicker` or create compressed archives per platform.
 
-   ```sh
-   python main.py random
-   ```
+## Continuous Delivery
 
-5. **Run the script in burst mode**:
+- `.github/workflows/build-release.yml` runs on every push to `main`, on tags that start with `v`, and via `workflow_dispatch`.
+- Each job installs Poetry on Windows, macOS, and Linux runners, builds the PyInstaller bundle, zips `dist/auto-clicker`, and publishes the zip as a workflow artifact named `auto-clicker-<OS>.zip`.
+- When a tag such as `v1.2.3` is pushed, the workflow automatically creates a GitHub release and attaches the three platform-specific archives so you can share binaries without any local work.
+- For ad-hoc builds, launch the workflow manually from the GitHub Actions tab and download the artifacts from the run summary once it completes.
 
-   ```sh
-   python main.py burst --burst-count 20
-   ```
+## Scancode Helper
 
-6. **Run the script with custom delays**:
+Need to discover the physical scancode for a keyboard key?
 
-   ```sh
-   python main.py --min-delay 0.01 --max-delay 0.1
-   ```
+```bash
+poetry run python -m auto_clicker.tools.scancode
+```
 
-7. **Instructions**:
-   - In toggle mode, press the `h` key to start clicking and press it again to stop.
-   - In hold mode, press and hold the `h` key to start clicking.
-   - In double click mode, press and hold the `h` key to double click.
-   - In random click mode, press and hold the `h` key to click at random intervals.
-   - In burst mode, press and hold the `h` key to click rapidly a specified number of times.
-   - Press the `esc` key to stop the script in any mode.
-   - Use `--min-delay` and `--max-delay` to introduce randomness in the clicking delays to make the clicking more human-like.
+Press any key to see its info; press `esc` to exit.
 
-## Code Improvements
+## Known Limitations
 
-Here are a few suggestions to enhance the code quality and functionality, which can also help impress future employers:
-
-1. **Exception Handling**:
-
-   - Add exception handling to manage unexpected errors gracefully.
-
-2. **Logging**:
-
-   - Implement logging instead of print statements for better monitoring and debugging.
-
-3. **Configurable Parameters**:
-   - Allow users to configure the keys and the delay time via command-line arguments or a configuration file.
+- The `keyboard` package requires administrative privileges on macOS and Linux (root/sudo). Run the app with the necessary permissions when global hotkeys do not fire.
+- PyAutoGUI relies on the system accessibility APIs. Grant accessibility/input monitoring permissions when macOS prompts for them.
+- Cross-compiling executables is not supported; build on each OS instead.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

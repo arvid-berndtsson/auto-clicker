@@ -50,8 +50,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auto-clicker-${{ runner.os }}
-          path: dist/auto-clicker-${{ runner.os }}.zip
+          name: auto-clicker-${{ toLower(runner.os) }}
+          path: dist/auto-clicker-${{ toLower(runner.os) }}.zip
           retention-days: 7
 
   release:

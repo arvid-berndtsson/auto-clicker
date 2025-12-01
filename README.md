@@ -99,6 +99,13 @@ Platform tips:
 
 For reproducible builds or custom icons, tweak `pyinstaller.spec` (e.g., `icon='assets/icon.ico'`) and rerun the command. Distribute the contents of `dist/auto-clicker` or create compressed archives per platform.
 
+## Continuous Delivery
+
+- `.github/workflows/build-release.yml` runs on every push to `main`, on tags that start with `v`, and via `workflow_dispatch`.
+- Each job installs Poetry on Windows, macOS, and Linux runners, builds the PyInstaller bundle, zips `dist/auto-clicker`, and publishes the zip as a workflow artifact named `auto-clicker-<OS>.zip`.
+- When a tag such as `v1.2.3` is pushed, the workflow automatically creates a GitHub release and attaches the three platform-specific archives so you can share binaries without any local work.
+- For ad-hoc builds, launch the workflow manually from the GitHub Actions tab and download the artifacts from the run summary once it completes.
+
 ## Scancode Helper
 
 Need to discover the physical scancode for a keyboard key?

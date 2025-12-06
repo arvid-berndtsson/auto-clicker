@@ -34,8 +34,10 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
-  // Open DevTools in development
-  // mainWindow.webContents.openDevTools();
+  // Open DevTools in verbose mode
+  if (process.env.AUTO_CLICKER_VERBOSE === '1') {
+    mainWindow.webContents.openDevTools();
+  }
 }
 
 app.whenReady().then(() => {

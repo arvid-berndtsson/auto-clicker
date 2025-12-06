@@ -37,6 +37,27 @@ npm install
 3. Run the application:
 ```bash
 npm start
+# or
+node cli.js gui
+```
+
+### Command Line Interface
+
+The CLI provides quick access to the application:
+
+```bash
+# Launch GUI (default)
+node cli.js
+node cli.js gui
+
+# Launch GUI with verbose logging (shows DevTools)
+node cli.js gui --verbose
+
+# Show version
+node cli.js version
+
+# Show help
+node cli.js help
 ```
 
 ## Usage
@@ -80,6 +101,22 @@ Results are placed in the `dist/` folder:
 - **Linux**: `.AppImage` and `.deb` package
 
 **Note**: For best results, build on the target platform (Windows builds on Windows, macOS on macOS, etc.)
+
+## Scancode Helper
+
+Need to discover keyboard key names for configuring hotkeys?
+
+```bash
+# CLI mode (text-based)
+npm run scancode
+
+# GUI mode (visual interface)
+npm run scancode:gui
+# or
+node tools/scancode.js --gui
+```
+
+Press any key to see its information; press ESC to exit.
 
 ## Continuous Delivery
 

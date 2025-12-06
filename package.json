@@ -3,8 +3,13 @@
   "version": "0.0.2",
   "description": "Cross-platform auto clicker with Electron GUI",
   "main": "electron/main.js",
+  "bin": {
+    "auto-clicker": "./cli.js"
+  },
   "scripts": {
     "start": "electron . --no-sandbox",
+    "scancode": "node tools/scancode.js",
+    "scancode:gui": "node tools/scancode.js --gui",
     "build": "electron-builder",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",

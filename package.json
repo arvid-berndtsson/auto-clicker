@@ -1,0 +1,62 @@
+{
+  "name": "auto-clicker",
+  "version": "0.0.2",
+  "description": "Cross-platform auto clicker with Electron GUI",
+  "main": "electron/main.js",
+  "bin": {
+    "auto-clicker": "./cli.js"
+  },
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "scancode": "node tools/scancode.js",
+    "scancode:gui": "node tools/scancode.js --gui",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "auto-clicker",
+    "automation",
+    "electron"
+  ],
+  "author": "Arvid Berndtsson <arvid@dotarvid.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6"
+  },
+  "build": {
+    "appId": "com.autoclicker.app",
+    "productName": "Auto Clicker",
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  }
+}

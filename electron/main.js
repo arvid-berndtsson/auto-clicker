@@ -2,6 +2,9 @@ const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const { mouse, Button } = require('@nut-tree-fork/nut-js');
 
+// Constants
+const DOUBLE_CLICK_DELAY_MS = 10;
+
 let mainWindow;
 let clickerInterval = null;
 let clickingActive = false;
@@ -81,7 +84,7 @@ async function performDoubleClick() {
     };
     const btn = buttonMap[settings.button] || Button.LEFT;
     await mouse.click(btn);
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, DOUBLE_CLICK_DELAY_MS));
     await mouse.click(btn);
   } catch (error) {
     console.error('Error performing double click:', error);
@@ -90,7 +93,7 @@ async function performDoubleClick() {
 
 function stopClicking() {
   if (clickerInterval) {
-    clearInterval(clickerInterval);
+    clearTimeout(clickerInterval);
     clickerInterval = null;
   }
   clickingActive = false;
@@ -110,11 +113,13 @@ function runToggleMode() {
 
   globalShortcut.register(settings.clickKey, toggleClicks);
   
-  clickerInterval = setInterval(() => {
+  const clickLoop = () => {
     if (clicking) {
       performClick();
     }
-  }, getRandomDelay());
+    clickerInterval = setTimeout(clickLoop, getRandomDelay());
+  };
+  clickLoop();
 }
 
 function runHoldMode() {
@@ -126,11 +131,13 @@ function runHoldMode() {
     console.log('Hold mode:', isHolding ? 'ON' : 'OFF');
   });
 
-  clickerInterval = setInterval(() => {
+  const clickLoop = () => {
     if (isHolding) {
       performClick();
     }
-  }, getRandomDelay());
+    clickerInterval = setTimeout(clickLoop, getRandomDelay());
+  };
+  clickLoop();
 }
 
 function runDoubleMode() {
@@ -142,11 +149,13 @@ function runDoubleMode() {
     console.log('Double mode:', isDoubleClicking ? 'ON' : 'OFF');
   });
 
-  clickerInterval = setInterval(() => {
+  const clickLoop = () => {
     if (isDoubleClicking) {
       performDoubleClick();
     }
-  }, getRandomDelay());
+    clickerInterval = setTimeout(clickLoop, getRandomDelay());
+  };
+  clickLoop();
 }
 
 function runRandomMode() {
@@ -158,19 +167,24 @@ function runRandomMode() {
     console.log('Random mode:', isRandomClicking ? 'ON' : 'OFF');
   });
 
-  clickerInterval = setInterval(() => {
+  const clickLoop = () => {
     if (isRandomClicking) {
       performClick();
     }
-  }, getRandomDelay() * 2); // Extra randomness
+    // Extra randomness for random mode
+    clickerInterval = setTimeout(clickLoop, getRandomDelay() * 2);
+  };
+  clickLoop();
 }
 
 function runBurstMode() {
-  globalShortcut.register(settings.clickKey, () => {
+  globalShortcut.register(settings.clickKey, async () => {
+    // Execute burst of clicks with random delays
     for (let i = 0; i < settings.burstCount; i++) {
-      setTimeout(() => {
-        performClick();
-      }, i * getRandomDelay());
+      await performClick();
+      if (i < settings.burstCount - 1) {
+        await new Promise(resolve => setTimeout(resolve, getRandomDelay()));
+      }
     }
   });
 }

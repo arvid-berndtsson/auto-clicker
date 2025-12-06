@@ -4,6 +4,7 @@ const { mouse, Button } = require('@nut-tree-fork/nut-js');
 
 // Constants
 const DOUBLE_CLICK_DELAY_MS = 10;
+const RANDOM_MODE_DELAY_MULTIPLIER = 2;
 
 let mainWindow;
 let clickerInterval = null;
@@ -62,6 +63,10 @@ function getRandomDelay() {
   return Math.random() * (max - min) + min;
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function performClick() {
   try {
     const buttonMap = {
@@ -84,7 +89,7 @@ async function performDoubleClick() {
     };
     const btn = buttonMap[settings.button] || Button.LEFT;
     await mouse.click(btn);
-    await new Promise(resolve => setTimeout(resolve, DOUBLE_CLICK_DELAY_MS));
+    await sleep(DOUBLE_CLICK_DELAY_MS);
     await mouse.click(btn);
   } catch (error) {
     console.error('Error performing double click:', error);
@@ -172,7 +177,7 @@ function runRandomMode() {
       performClick();
     }
     // Extra randomness for random mode
-    clickerInterval = setTimeout(clickLoop, getRandomDelay() * 2);
+    clickerInterval = setTimeout(clickLoop, getRandomDelay() * RANDOM_MODE_DELAY_MULTIPLIER);
   };
   clickLoop();
 }
@@ -183,7 +188,7 @@ function runBurstMode() {
     for (let i = 0; i < settings.burstCount; i++) {
       await performClick();
       if (i < settings.burstCount - 1) {
-        await new Promise(resolve => setTimeout(resolve, getRandomDelay()));
+        await sleep(getRandomDelay());
       }
     }
   });

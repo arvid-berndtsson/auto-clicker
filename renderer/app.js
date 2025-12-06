@@ -50,22 +50,22 @@ function validateSettings() {
   const burstCount = parseInt(burstCountInput.value);
 
   if (minDelay <= 0 || maxDelay <= 0) {
-    alert('Delays must be positive numbers');
+    showStatusMessage('Error: Delays must be positive numbers', true);
     return false;
   }
 
   if (minDelay > maxDelay) {
-    alert('Minimum delay cannot be greater than maximum delay');
+    showStatusMessage('Error: Minimum delay cannot be greater than maximum delay', true);
     return false;
   }
 
   if (burstCount <= 0) {
-    alert('Burst count must be at least 1');
+    showStatusMessage('Error: Burst count must be at least 1', true);
     return false;
   }
 
   if (!clickKeyInput.value || !stopKeyInput.value) {
-    alert('Key names cannot be empty');
+    showStatusMessage('Error: Key names cannot be empty', true);
     return false;
   }
 

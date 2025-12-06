@@ -7,7 +7,8 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
     />
-    <title>Auto Clicker</title>
+    <title>Auto Clicker - Cross-platform automation tool</title>
+    <meta name="description" content="Auto Clicker - A powerful cross-platform automation tool with multiple clicking modes" />
     <link rel="stylesheet" href="output.css" />
   </head>
   <body>
@@ -17,38 +18,52 @@
         <p class="subtitle">Cross-platform automation tool</p>
       </header>
 
-      <div class="status-bar" id="statusBar">
-        <span class="status-indicator" id="statusIndicator">●</span>
-        <span id="statusText">Idle</span>
+      <div class="status-bar" id="statusBar" role="status" aria-live="polite">
+        <span class="status-indicator" id="statusIndicator" aria-hidden="true">●</span>
+        <span id="statusText">Ready to start</span>
       </div>
 
       <main class="settings-panel">
         <div class="section">
-          <h2>Click Settings</h2>
+          <h2>
+            <span class="section-icon" aria-hidden="true">⚙️</span>
+            Click Settings
+          </h2>
 
           <div class="form-group">
-            <label for="mode">Mode</label>
-            <select id="mode" class="input-field">
-              <option value="toggle">Toggle - Tap to start/stop</option>
-              <option value="hold" selected>Hold - Tap to toggle clicking</option>
-              <option value="double">Double - Tap to toggle double-clicking</option>
-              <option value="random">Random - Tap to toggle with jitter</option>
-              <option value="burst">Burst - Press for burst of clicks</option>
+            <label for="mode">
+              Clicking Mode
+              <span class="label-tooltip" title="Choose how the auto-clicker behaves when you press the click key">ⓘ</span>
+            </label>
+            <select id="mode" class="input-field" aria-describedby="mode-help">
+              <option value="toggle">🔄 Toggle - Tap to start/stop</option>
+              <option value="hold" selected>👆 Hold - Tap to toggle clicking</option>
+              <option value="double">✌️ Double - Tap to toggle double-clicking</option>
+              <option value="random">🎲 Random - Tap to toggle with jitter</option>
+              <option value="burst">💥 Burst - Press for burst of clicks</option>
             </select>
+            <small class="help-text" id="mode-help">Select the clicking behavior that best suits your needs</small>
           </div>
 
           <div class="form-group">
-            <label for="button">Mouse Button</label>
-            <select id="button" class="input-field">
-              <option value="left" selected>Left Button</option>
-              <option value="right">Right Button</option>
-              <option value="middle">Middle Button</option>
+            <label for="button">
+              Mouse Button
+              <span class="label-tooltip" title="Select which mouse button to click">ⓘ</span>
+            </label>
+            <select id="button" class="input-field" aria-describedby="button-help">
+              <option value="left" selected>🖱️ Left Button</option>
+              <option value="right">🖱️ Right Button</option>
+              <option value="middle">🖱️ Middle Button</option>
             </select>
+            <small class="help-text" id="button-help">Choose which mouse button to simulate</small>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="minDelay">Min Delay (ms)</label>
+              <label for="minDelay">
+                Min Delay (ms)
+                <span class="label-tooltip" title="Minimum time between clicks in milliseconds">ⓘ</span>
+              </label>
               <input
                 type="number"
                 id="minDelay"
@@ -56,10 +71,15 @@
                 value="1"
                 min="1"
                 max="10000"
+                aria-describedby="minDelay-help"
               />
+              <small class="help-text" id="minDelay-help">Minimum wait time between clicks</small>
             </div>
             <div class="form-group">
-              <label for="maxDelay">Max Delay (ms)</label>
+              <label for="maxDelay">
+                Max Delay (ms)
+                <span class="label-tooltip" title="Maximum time between clicks in milliseconds">ⓘ</span>
+              </label>
               <input
                 type="number"
                 id="maxDelay"
@@ -67,60 +87,114 @@
                 value="5"
                 min="1"
                 max="10000"
+                aria-describedby="maxDelay-help"
               />
+              <small class="help-text" id="maxDelay-help">Maximum wait time between clicks</small>
             </div>
           </div>
 
           <div class="form-group" id="burstCountGroup">
-            <label for="burstCount">Burst Count</label>
-            <input type="number" id="burstCount" class="input-field" value="10" min="1" max="100" />
+            <label for="burstCount">
+              Burst Count
+              <span class="label-tooltip" title="Number of clicks per burst">ⓘ</span>
+            </label>
+            <input 
+              type="number" 
+              id="burstCount" 
+              class="input-field" 
+              value="10" 
+              min="1" 
+              max="100"
+              aria-describedby="burstCount-help"
+            />
+            <small class="help-text" id="burstCount-help">How many clicks to perform in each burst</small>
           </div>
         </div>
 
         <div class="section">
-          <h2>Hotkeys</h2>
+          <h2>
+            <span class="section-icon" aria-hidden="true">⌨️</span>
+            Hotkeys
+          </h2>
 
           <div class="form-group">
-            <label for="clickKey">Click Key</label>
-            <input type="text" id="clickKey" class="input-field" value="h" maxlength="10" />
-            <small class="help-text">Key to trigger clicking</small>
+            <label for="clickKey">
+              Click Key
+              <span class="label-tooltip" title="Keyboard key to trigger clicking">ⓘ</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="input-icon" aria-hidden="true">⌨️</span>
+              <input 
+                type="text" 
+                id="clickKey" 
+                class="input-field with-icon" 
+                value="h" 
+                maxlength="10"
+                placeholder="e.g., h, space, f1"
+                aria-describedby="clickKey-help"
+              />
+            </div>
+            <small class="help-text" id="clickKey-help">Press this key to trigger clicking</small>
           </div>
 
           <div class="form-group">
-            <label for="stopKey">Stop Key</label>
-            <input type="text" id="stopKey" class="input-field" value="esc" maxlength="10" />
-            <small class="help-text">Key to stop the clicker</small>
+            <label for="stopKey">
+              Stop Key
+              <span class="label-tooltip" title="Emergency stop key to halt clicking immediately">ⓘ</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="input-icon" aria-hidden="true">🛑</span>
+              <input 
+                type="text" 
+                id="stopKey" 
+                class="input-field with-icon" 
+                value="esc" 
+                maxlength="10"
+                placeholder="e.g., esc, space"
+                aria-describedby="stopKey-help"
+              />
+            </div>
+            <small class="help-text" id="stopKey-help">Emergency stop - press this key to halt immediately</small>
           </div>
         </div>
 
         <div class="controls">
-          <button id="startBtn" class="btn btn-primary">
-            <span class="btn-icon">▶</span> Start Clicker
+          <button id="startBtn" class="btn btn-primary" aria-label="Start the auto clicker">
+            <span class="btn-icon" aria-hidden="true">▶️</span>
+            <span>Start Clicker</span>
           </button>
-          <button id="stopBtn" class="btn btn-secondary" disabled>
-            <span class="btn-icon">■</span> Stop Clicker
+          <button id="stopBtn" class="btn btn-secondary" disabled aria-label="Stop the auto clicker">
+            <span class="btn-icon" aria-hidden="true">⏹️</span>
+            <span>Stop Clicker</span>
           </button>
         </div>
 
-        <div class="info-box">
-          <h3>Quick Guide</h3>
+        <div class="info-box" role="complementary" aria-label="Quick guide and tips">
+          <h3>
+            <span class="info-icon" aria-hidden="true">💡</span>
+            Quick Guide
+          </h3>
           <ul>
-            <li><strong>Toggle:</strong> Tap the click key to start/stop automatic clicking</li>
-            <li><strong>Hold:</strong> Tap the click key to toggle clicking on/off</li>
-            <li><strong>Double:</strong> Tap the click key to toggle double-clicking on/off</li>
-            <li><strong>Random:</strong> Adds extra randomness to click timing, tap to toggle</li>
-            <li>
-              <strong>Burst:</strong> Fires multiple rapid clicks each time you press the click key
-            </li>
+            <li><strong>🔄 Toggle:</strong> Tap the click key to start/stop automatic clicking</li>
+            <li><strong>👆 Hold:</strong> Tap the click key to toggle clicking on/off</li>
+            <li><strong>✌️ Double:</strong> Tap the click key to toggle double-clicking on/off</li>
+            <li><strong>🎲 Random:</strong> Adds extra randomness to click timing for more human-like behavior</li>
+            <li><strong>💥 Burst:</strong> Fires multiple rapid clicks each time you press the click key</li>
           </ul>
-          <p class="warning">⚠️ Press the stop key (ESC) at any time to stop clicking</p>
+          <div class="warning">
+            <span class="warning-icon" aria-hidden="true">⚠️</span>
+            <strong>Safety Tip:</strong> Press the stop key (default: ESC) at any time to stop clicking immediately
+          </div>
         </div>
       </main>
 
-      <footer>
-        <p>Version 0.0.2 | MIT License</p>
+      <footer role="contentinfo">
+        <p>Version 0.0.2 | MIT License | <a href="https://github.com/arvid-berndtsson/auto-clicker" target="_blank" rel="noopener noreferrer" class="footer-link">View on GitHub</a></p>
       </footer>
     </div>
+
+    <!-- Toast notification container -->
+    <div id="toastContainer" class="toast-container" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
     <script src="../dist/renderer/app.js"></script>
   </body>

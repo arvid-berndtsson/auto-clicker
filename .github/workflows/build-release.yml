@@ -19,33 +19,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
-
-      - name: Install Poetry
-        run: pip install poetry
+          node-version: '20'
 
       - name: Install dependencies
-        run: poetry install --with dev
+        run: npm install
 
-      - name: Build executable with PyInstaller
-        run: poetry run pyinstaller pyinstaller.spec
+      - name: Build Electron app (Linux)
+        if: runner.os == 'Linux'
+        run: npm run build:linux
 
-      - name: Package artifact
-        env:
-          RUNNER_OS: ${{ runner.os }}
+      - name: Build Electron app (macOS)
+        if: runner.os == 'macOS'
+        run: npm run build:mac
+
+      - name: Build Electron app (Windows)
+        if: runner.os == 'Windows'
+        run: npm run build:win
+
+      - name: Package artifact (Linux)
+        if: runner.os == 'Linux'
         run: |
-          python - <<'PY'
-          import os
-          import pathlib
-          import shutil
+          cd dist
+          zip -r auto-clicker-linux.zip *.AppImage *.deb 2>/dev/null || true
 
-          os_name = os.environ.get("RUNNER_OS", "unknown").lower()
-          base_name = pathlib.Path("dist") / f"auto-clicker-{os_name}"
-          shutil.make_archive(str(base_name), "zip", "dist", "auto-clicker")
-          PY
+      - name: Package artifact (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          zip -r auto-clicker-macos.zip *.dmg 2>/dev/null || true
+
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd dist
+          7z a auto-clicker-windows.zip *.exe 2>/dev/null || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

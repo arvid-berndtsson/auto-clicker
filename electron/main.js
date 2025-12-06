@@ -1,0 +1,227 @@
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
+const path = require('path');
+const { mouse, Button } = require('@nut-tree-fork/nut-js');
+
+let mainWindow;
+let clickerInterval = null;
+let clickingActive = false;
+let clickerMode = 'hold';
+let settings = {
+  minDelay: 1,
+  maxDelay: 5,
+  burstCount: 10,
+  clickKey: 'h',
+  stopKey: 'esc',
+  button: 'left'
+};
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 600,
+    height: 700,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    resizable: true,
+    title: 'Auto Clicker'
+  });
+
+  mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+
+  // Open DevTools in development
+  // mainWindow.webContents.openDevTools();
+}
+
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+app.on('window-all-closed', () => {
+  stopClicking();
+  globalShortcut.unregisterAll();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+// Utility functions
+function getRandomDelay() {
+  const min = settings.minDelay;
+  const max = settings.maxDelay;
+  return Math.random() * (max - min) + min;
+}
+
+function performClick() {
+  try {
+    const buttonMap = {
+      'left': Button.LEFT,
+      'right': Button.RIGHT,
+      'middle': Button.MIDDLE
+    };
+    mouse.click(buttonMap[settings.button] || Button.LEFT);
+  } catch (error) {
+    console.error('Error performing click:', error);
+  }
+}
+
+function performDoubleClick() {
+  try {
+    const buttonMap = {
+      'left': Button.LEFT,
+      'right': Button.RIGHT,
+      'middle': Button.MIDDLE
+    };
+    const btn = buttonMap[settings.button] || Button.LEFT;
+    mouse.click(btn);
+    setTimeout(() => {
+      mouse.click(btn);
+    }, 10);
+  } catch (error) {
+    console.error('Error performing double click:', error);
+  }
+}
+
+function stopClicking() {
+  if (clickerInterval) {
+    clearInterval(clickerInterval);
+    clickerInterval = null;
+  }
+  clickingActive = false;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('clicker-status', { running: false });
+  }
+}
+
+// Clicker mode implementations
+function runToggleMode() {
+  let clicking = false;
+  
+  const toggleClicks = () => {
+    clicking = !clicking;
+    console.log('Toggle mode:', clicking ? 'ON' : 'OFF');
+  };
+
+  globalShortcut.register(settings.clickKey, toggleClicks);
+  
+  clickerInterval = setInterval(() => {
+    if (clicking) {
+      performClick();
+    }
+  }, getRandomDelay());
+}
+
+function runHoldMode() {
+  globalShortcut.register(settings.clickKey, () => {
+    clickingActive = true;
+  });
+
+  clickerInterval = setInterval(() => {
+    if (clickingActive) {
+      performClick();
+    }
+  }, getRandomDelay());
+}
+
+function runDoubleMode() {
+  globalShortcut.register(settings.clickKey, () => {
+    clickingActive = true;
+  });
+
+  clickerInterval = setInterval(() => {
+    if (clickingActive) {
+      performDoubleClick();
+    }
+  }, getRandomDelay());
+}
+
+function runRandomMode() {
+  globalShortcut.register(settings.clickKey, () => {
+    clickingActive = true;
+  });
+
+  clickerInterval = setInterval(() => {
+    if (clickingActive) {
+      performClick();
+    }
+  }, getRandomDelay() * 2); // Extra randomness
+}
+
+function runBurstMode() {
+  globalShortcut.register(settings.clickKey, () => {
+    for (let i = 0; i < settings.burstCount; i++) {
+      setTimeout(() => {
+        performClick();
+      }, i * getRandomDelay());
+    }
+  });
+}
+
+// IPC handlers
+ipcMain.handle('start-clicker', async (event, config) => {
+  if (clickingActive && clickerInterval) {
+    return { success: false, message: 'Clicker is already running' };
+  }
+
+  settings = { ...settings, ...config };
+  clickerMode = config.mode;
+  clickingActive = true;
+
+  // Unregister previous shortcuts
+  globalShortcut.unregisterAll();
+
+  // Register stop key
+  globalShortcut.register(settings.stopKey, () => {
+    stopClicking();
+  });
+
+  // Start appropriate mode
+  try {
+    switch (clickerMode) {
+      case 'toggle':
+        runToggleMode();
+        break;
+      case 'hold':
+        runHoldMode();
+        break;
+      case 'double':
+        runDoubleMode();
+        break;
+      case 'random':
+        runRandomMode();
+        break;
+      case 'burst':
+        runBurstMode();
+        break;
+      default:
+        runHoldMode();
+    }
+
+    mainWindow.webContents.send('clicker-status', { running: true });
+    return { success: true, message: 'Clicker started successfully' };
+  } catch (error) {
+    console.error('Error starting clicker:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.handle('stop-clicker', async () => {
+  stopClicking();
+  globalShortcut.unregisterAll();
+  return { success: true, message: 'Clicker stopped' };
+});
+
+ipcMain.handle('get-status', async () => {
+  return {
+    running: clickingActive,
+    mode: clickerMode,
+    settings: settings
+  };
+});

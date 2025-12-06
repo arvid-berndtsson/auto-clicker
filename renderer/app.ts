@@ -246,7 +246,7 @@ async function handleStop(): Promise<void> {
 
     if (result.success) {
       updateStatus(false);
-      showStatusMessage('OFFLINE');
+      showStatusMessage('READY');
     }
   } catch (error) {
     console.error('Error stopping clicker:', error);

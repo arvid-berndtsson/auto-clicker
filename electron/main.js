@@ -59,20 +59,20 @@ function getRandomDelay() {
   return Math.random() * (max - min) + min;
 }
 
-function performClick() {
+async function performClick() {
   try {
     const buttonMap = {
       'left': Button.LEFT,
       'right': Button.RIGHT,
       'middle': Button.MIDDLE
     };
-    mouse.click(buttonMap[settings.button] || Button.LEFT);
+    await mouse.click(buttonMap[settings.button] || Button.LEFT);
   } catch (error) {
     console.error('Error performing click:', error);
   }
 }
 
-function performDoubleClick() {
+async function performDoubleClick() {
   try {
     const buttonMap = {
       'left': Button.LEFT,
@@ -80,10 +80,9 @@ function performDoubleClick() {
       'middle': Button.MIDDLE
     };
     const btn = buttonMap[settings.button] || Button.LEFT;
-    mouse.click(btn);
-    setTimeout(() => {
-      mouse.click(btn);
-    }, 10);
+    await mouse.click(btn);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    await mouse.click(btn);
   } catch (error) {
     console.error('Error performing double click:', error);
   }
@@ -119,36 +118,48 @@ function runToggleMode() {
 }
 
 function runHoldMode() {
+  let isHolding = false;
+  
   globalShortcut.register(settings.clickKey, () => {
-    clickingActive = true;
+    // Toggle clicking on/off when key is pressed
+    isHolding = !isHolding;
+    console.log('Hold mode:', isHolding ? 'ON' : 'OFF');
   });
 
   clickerInterval = setInterval(() => {
-    if (clickingActive) {
+    if (isHolding) {
       performClick();
     }
   }, getRandomDelay());
 }
 
 function runDoubleMode() {
+  let isDoubleClicking = false;
+  
   globalShortcut.register(settings.clickKey, () => {
-    clickingActive = true;
+    // Toggle double-clicking on/off when key is pressed
+    isDoubleClicking = !isDoubleClicking;
+    console.log('Double mode:', isDoubleClicking ? 'ON' : 'OFF');
   });
 
   clickerInterval = setInterval(() => {
-    if (clickingActive) {
+    if (isDoubleClicking) {
       performDoubleClick();
     }
   }, getRandomDelay());
 }
 
 function runRandomMode() {
+  let isRandomClicking = false;
+  
   globalShortcut.register(settings.clickKey, () => {
-    clickingActive = true;
+    // Toggle random clicking on/off when key is pressed
+    isRandomClicking = !isRandomClicking;
+    console.log('Random mode:', isRandomClicking ? 'ON' : 'OFF');
   });
 
   clickerInterval = setInterval(() => {
-    if (clickingActive) {
+    if (isRandomClicking) {
       performClick();
     }
   }, getRandomDelay() * 2); // Extra randomness

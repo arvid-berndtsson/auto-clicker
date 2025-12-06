@@ -18,6 +18,11 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 - `tools/`: Utility scripts (scancode helper).
 - `package.json`: Node.js dependencies and build configuration.
 
+## Documentation
+
+- **[ROADMAP.md](ROADMAP.md)** - Comprehensive development plan for gaming enhancements targeting Roblox, RuneScape (OSRS & RS3), Minecraft, World of Warcraft, Final Fantasy XIV, and other popular games
+- **[Gaming Guide](docs/GAMING_GUIDE.md)** - Game-specific configuration recommendations, safety tips, and best practices
+
 ## Getting Started
 
 ### Installation

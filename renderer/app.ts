@@ -4,8 +4,8 @@ let stopBtn: HTMLButtonElement;
 let statusBar: HTMLElement;
 let statusText: HTMLElement;
 let modeSelect: HTMLSelectElement;
-let burstCountGroup: HTMLElement;
-let toastContainer: HTMLElement;
+let modeSelector: HTMLElement;
+let burstCountRow: HTMLElement;
 
 // Settings inputs
 let minDelayInput: HTMLInputElement;
@@ -14,9 +14,6 @@ let burstCountInput: HTMLInputElement;
 let clickKeyInput: HTMLInputElement;
 let stopKeyInput: HTMLInputElement;
 let buttonSelect: HTMLSelectElement;
-
-// State - isRunning is managed via updateStatus function
-const activeToasts: Set<HTMLElement> = new Set();
 
 interface ClickerSettings {
   mode: string;
@@ -36,8 +33,8 @@ function init(): void {
   statusBar = document.getElementById('statusBar') as HTMLElement;
   statusText = document.getElementById('statusText') as HTMLElement;
   modeSelect = document.getElementById('mode') as HTMLSelectElement;
-  burstCountGroup = document.getElementById('burstCountGroup') as HTMLElement;
-  toastContainer = document.getElementById('toastContainer') as HTMLElement;
+  modeSelector = document.getElementById('modeSelector') as HTMLElement;
+  burstCountRow = document.getElementById('burstCountRow') as HTMLElement;
   minDelayInput = document.getElementById('minDelay') as HTMLInputElement;
   maxDelayInput = document.getElementById('maxDelay') as HTMLInputElement;
   burstCountInput = document.getElementById('burstCount') as HTMLInputElement;
@@ -52,8 +49,8 @@ function init(): void {
     !statusBar ||
     !statusText ||
     !modeSelect ||
-    !burstCountGroup ||
-    !toastContainer
+    !modeSelector ||
+    !burstCountRow
   ) {
     console.error('Required DOM elements not found');
     return;
@@ -62,16 +59,24 @@ function init(): void {
   // Check if electronAPI is available
   if (!window.electronAPI) {
     console.error('electronAPI is not available');
-    statusText.textContent = 'Error: electronAPI not available';
-    statusText.style.color = '#dc3545';
-    showToast('Failed to initialize: electronAPI not available', 'error');
+    statusText.textContent = 'Error';
     return;
   }
 
   // Set up event listeners
   startBtn.addEventListener('click', handleStart);
   stopBtn.addEventListener('click', handleStop);
-  modeSelect.addEventListener('change', handleModeChange);
+
+  // Mode selector buttons
+  const modeButtons = modeSelector.querySelectorAll('.mode-option');
+  modeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const mode = button.getAttribute('data-mode');
+      if (mode) {
+        selectMode(mode);
+      }
+    });
+  });
 
   // Add input validation listeners
   minDelayInput.addEventListener('input', validateDelayInputs);
@@ -84,60 +89,24 @@ function init(): void {
 
   // Initialize UI based on mode
   handleModeChange();
-
-  // Show welcome message
-  showToast('Auto Clicker ready! Configure your settings and press Start.', 'info', 3000);
 }
 
-// Toast notification system
-function showToast(
-  message: string,
-  type: 'success' | 'error' | 'info' = 'info',
-  duration = 5000
-): void {
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-
-  const icon = document.createElement('span');
-  icon.className = 'toast-icon';
-  icon.setAttribute('aria-hidden', 'true');
-  icon.textContent = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-
-  const content = document.createElement('span');
-  content.className = 'toast-content';
-  content.textContent = message;
-
-  const closeBtn = document.createElement('span');
-  closeBtn.className = 'toast-close';
-  closeBtn.setAttribute('aria-label', 'Close notification');
-  closeBtn.textContent = '×';
-  closeBtn.onclick = () => removeToast(toast);
-
-  toast.appendChild(icon);
-  toast.appendChild(content);
-  toast.appendChild(closeBtn);
-
-  toastContainer.appendChild(toast);
-  activeToasts.add(toast);
-
-  // Auto-remove after duration
-  setTimeout(() => {
-    removeToast(toast);
-  }, duration);
-}
-
-function removeToast(toast: HTMLElement): void {
-  if (!activeToasts.has(toast)) return;
-
-  toast.style.opacity = '0';
-  toast.style.transform = 'translateX(100%)';
-
-  setTimeout(() => {
-    if (toast.parentNode === toastContainer) {
-      toastContainer.removeChild(toast);
+function selectMode(mode: string): void {
+  // Update visual selection
+  const modeButtons = modeSelector.querySelectorAll('.mode-option');
+  modeButtons.forEach((button) => {
+    if (button.getAttribute('data-mode') === mode) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
     }
-    activeToasts.delete(toast);
-  }, 300);
+  });
+
+  // Update hidden select
+  modeSelect.value = mode;
+
+  // Handle mode-specific UI
+  handleModeChange();
 }
 
 function handleModeChange(): void {
@@ -145,23 +114,9 @@ function handleModeChange(): void {
 
   // Show/hide burst count based on mode
   if (mode === 'burst') {
-    burstCountGroup.classList.remove('hidden');
+    burstCountRow.classList.remove('hidden');
   } else {
-    burstCountGroup.classList.add('hidden');
-  }
-
-  // Update help text based on mode
-  const modeDescriptions: Record<string, string> = {
-    toggle: 'Press the click key once to start, press again to stop',
-    hold: 'Press the click key to toggle clicking on/off',
-    double: 'Performs double-clicks while the mode is active',
-    random: 'Adds extra randomness to simulate human-like clicking',
-    burst: 'Fires multiple rapid clicks each time you press the key',
-  };
-
-  const description = modeDescriptions[mode] || '';
-  if (description) {
-    showStatusMessage(description);
+    burstCountRow.classList.add('hidden');
   }
 }
 
@@ -171,11 +126,11 @@ function validateDelayInputs(): void {
   const maxDelay = parseInt(maxDelayInput.value);
 
   if (minDelay > 0 && maxDelay > 0 && minDelay > maxDelay) {
-    minDelayInput.classList.add('border-red-500');
-    maxDelayInput.classList.add('border-red-500');
+    minDelayInput.style.borderColor = '#ef4444';
+    maxDelayInput.style.borderColor = '#ef4444';
   } else {
-    minDelayInput.classList.remove('border-red-500');
-    maxDelayInput.classList.remove('border-red-500');
+    minDelayInput.style.borderColor = '';
+    maxDelayInput.style.borderColor = '';
   }
 }
 
@@ -186,31 +141,26 @@ function validateSettings(): boolean {
 
   if (isNaN(minDelay) || minDelay <= 0 || isNaN(maxDelay) || maxDelay <= 0) {
     showStatusMessage('Error: Delays must be positive numbers', true);
-    showToast('Please enter valid positive numbers for delays', 'error');
     return false;
   }
 
   if (minDelay > maxDelay) {
-    showStatusMessage('Error: Minimum delay cannot be greater than maximum delay', true);
-    showToast('Minimum delay must be less than or equal to maximum delay', 'error');
+    showStatusMessage('Error: Min delay cannot exceed max delay', true);
     return false;
   }
 
   if (isNaN(burstCount) || burstCount <= 0 || burstCount > 100) {
     showStatusMessage('Error: Burst count must be between 1 and 100', true);
-    showToast('Burst count must be between 1 and 100', 'error');
     return false;
   }
 
   if (!clickKeyInput.value || !stopKeyInput.value) {
     showStatusMessage('Error: Key names cannot be empty', true);
-    showToast('Please specify both click key and stop key', 'error');
     return false;
   }
 
   if (clickKeyInput.value.toLowerCase() === stopKeyInput.value.toLowerCase()) {
-    showStatusMessage('Error: Click key and stop key must be different', true);
-    showToast('Click key and stop key cannot be the same', 'error');
+    showStatusMessage('Error: Keys must be different', true);
     return false;
   }
 
@@ -241,27 +191,13 @@ async function handleStart(): Promise<void> {
 
     if (result.success) {
       updateStatus(true);
-      const modeNames: Record<string, string> = {
-        toggle: '🔄 Toggle',
-        hold: '👆 Hold',
-        double: '✌️ Double',
-        random: '🎲 Random',
-        burst: '💥 Burst',
-      };
-      const modeName = modeNames[settings.mode] || settings.mode;
-      showStatusMessage(`${modeName} mode active - Press "${settings.stopKey}" to stop`);
-      showToast(
-        `Auto Clicker started in ${modeName} mode! Press "${settings.clickKey}" to click.`,
-        'success'
-      );
+      showStatusMessage('Active');
     } else {
-      showStatusMessage(result.message || 'Failed to start clicker', true);
-      showToast(result.message || 'Failed to start clicker', 'error');
+      showStatusMessage(result.message || 'Failed to start', true);
     }
   } catch (error) {
     console.error('Error starting clicker:', error);
-    showStatusMessage('Failed to start clicker', true);
-    showToast('An unexpected error occurred while starting the clicker', 'error');
+    showStatusMessage('Failed to start', true);
   }
 }
 
@@ -271,13 +207,11 @@ async function handleStop(): Promise<void> {
 
     if (result.success) {
       updateStatus(false);
-      showStatusMessage('Clicker stopped - Ready to start again');
-      showToast('Auto Clicker stopped successfully', 'success', 3000);
+      showStatusMessage('Ready');
     }
   } catch (error) {
     console.error('Error stopping clicker:', error);
-    showStatusMessage('Failed to stop clicker', true);
-    showToast('Failed to stop clicker', 'error');
+    showStatusMessage('Failed to stop', true);
   }
 }
 

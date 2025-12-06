@@ -2,7 +2,7 @@
 
 /**
  * Command-line interface for Auto Clicker
- * Provides CLI functionality similar to the Python version
+ * Provides CLI functionality for the Electron application
  */
 
 const { spawn } = require('child_process');
@@ -33,8 +33,7 @@ Examples:
   auto-clicker gui --verbose # Launch GUI with DevTools
   auto-clicker version       # Print version
 
-Note: The full CLI mode with all clicking options from the command line
-is not yet implemented in the Electron version. Use the GUI for now.
+Note: Use the GUI for the best experience with all clicking options.
 `);
 }
 

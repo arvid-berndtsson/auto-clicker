@@ -24,20 +24,25 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Build Electron app (Linux)
         if: runner.os == 'Linux'
-        run: npm run build:linux
+        run: pnpm build:linux
 
       - name: Build Electron app (macOS)
         if: runner.os == 'macOS'
-        run: npm run build:mac
+        run: pnpm build:mac
 
       - name: Build Electron app (Windows)
         if: runner.os == 'Windows'
-        run: npm run build:win
+        run: pnpm build:win
 
       - name: Package artifact (Linux)
         if: runner.os == 'Linux'

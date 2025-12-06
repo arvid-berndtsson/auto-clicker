@@ -15,9 +15,8 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 
 - `electron/`: Electron main process and preload scripts.
 - `renderer/`: UI code (HTML, CSS, JavaScript).
+- `tools/`: Utility scripts (scancode helper).
 - `package.json`: Node.js dependencies and build configuration.
-- `src/auto_clicker/`: Legacy Python code (deprecated, kept for reference).
-- `main.py`, `get_scancode.py`, `pyproject.toml`: Legacy Python files (deprecated).
 
 ## Getting Started
 
@@ -31,12 +30,12 @@ cd auto-clicker
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. Run the application:
 ```bash
-npm start
+pnpm start
 # or
 node cli.js gui
 ```
@@ -87,12 +86,12 @@ Build standalone executables for distribution using electron-builder:
 
 ```bash
 # Build for all platforms
-npm run build
+pnpm build
 
 # Or build for specific platforms
-npm run build:win     # Windows
-npm run build:mac     # macOS
-npm run build:linux   # Linux
+pnpm build:win     # Windows
+pnpm build:mac     # macOS
+pnpm build:linux   # Linux
 ```
 
 Results are placed in the `dist/` folder:
@@ -108,10 +107,10 @@ Need to discover keyboard key names for configuring hotkeys?
 
 ```bash
 # CLI mode (text-based)
-npm run scancode
+pnpm scancode
 
 # GUI mode (visual interface)
-npm run scancode:gui
+pnpm scancode:gui
 # or
 node tools/scancode.js --gui
 ```

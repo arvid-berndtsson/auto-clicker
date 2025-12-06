@@ -8,166 +8,166 @@
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
     />
     <title>Auto Clicker</title>
-    <meta name="description" content="Auto Clicker - A powerful cross-platform automation tool" />
+    <meta name="description" content="Auto Clicker - Gaming utility tool" />
     <link rel="stylesheet" href="output.css" />
   </head>
   <body>
     <div class="app-container">
-      <!-- Control Panel -->
-      <div class="control-panel">
-        <!-- Status Display -->
-        <div class="status-display" id="statusBar" role="status" aria-live="polite">
-          <div class="status-content">
-            <div class="status-dot" id="statusIndicator"></div>
-            <span class="status-text" id="statusText">Ready</span>
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-content">
+          <h1 class="app-title">AUTO CLICKER</h1>
+          <div class="status-badge" id="statusBar" role="status" aria-live="polite">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span class="status-text" id="statusText">OFFLINE</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Left Column: Controls -->
+        <div class="control-section">
+          <div class="control-buttons">
+            <button id="startBtn" class="game-btn start-btn" aria-label="Start auto clicking">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span class="btn-text">START</span>
+            </button>
+            <button id="stopBtn" class="game-btn stop-btn" disabled aria-label="Stop auto clicking">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12"/>
+              </svg>
+              <span class="btn-text">STOP</span>
+            </button>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="stat-item">
+              <span class="stat-label">MODE</span>
+              <span class="stat-value" id="currentMode">HOLD</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">BUTTON</span>
+              <span class="stat-value" id="currentButton">LEFT</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">DELAY</span>
+              <span class="stat-value" id="currentDelay">1-5ms</span>
+            </div>
           </div>
         </div>
 
-        <!-- Primary Controls -->
-        <div class="primary-controls">
-          <button id="startBtn" class="control-btn start-btn" aria-label="Start auto clicking">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <span class="btn-label">Start</span>
-          </button>
-          <button id="stopBtn" class="control-btn stop-btn" disabled aria-label="Stop auto clicking">
-            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="6" width="12" height="12"/>
-            </svg>
-            <span class="btn-label">Stop</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Settings Panel -->
-      <main class="settings-container">
-        <!-- Mode Selection Card -->
-        <div class="settings-card">
-          <h2 class="card-title">Mode</h2>
-          <div class="mode-selector" id="modeSelector">
-            <button class="mode-option" data-mode="toggle">
-              <span class="mode-name">Toggle</span>
-              <span class="mode-desc">Tap to start/stop</span>
-            </button>
-            <button class="mode-option active" data-mode="hold">
-              <span class="mode-name">Hold</span>
-              <span class="mode-desc">Tap to toggle</span>
-            </button>
-            <button class="mode-option" data-mode="double">
-              <span class="mode-name">Double</span>
-              <span class="mode-desc">Double-click mode</span>
-            </button>
-            <button class="mode-option" data-mode="random">
-              <span class="mode-name">Random</span>
-              <span class="mode-desc">Variable timing</span>
-            </button>
-            <button class="mode-option" data-mode="burst">
-              <span class="mode-name">Burst</span>
-              <span class="mode-desc">Multiple rapid clicks</span>
-            </button>
-          </div>
-          <select id="mode" class="hidden-select" aria-label="Clicking mode">
-            <option value="toggle">Toggle</option>
-            <option value="hold" selected>Hold</option>
-            <option value="double">Double</option>
-            <option value="random">Random</option>
-            <option value="burst">Burst</option>
-          </select>
-        </div>
-
-        <!-- Click Settings Card -->
-        <div class="settings-card">
-          <h2 class="card-title">Click Settings</h2>
-          
-          <div class="setting-row">
-            <label for="button" class="setting-label">Mouse Button</label>
-            <select id="button" class="setting-select">
-              <option value="left" selected>Left</option>
-              <option value="right">Right</option>
-              <option value="middle">Middle</option>
+        <!-- Right Column: Settings -->
+        <div class="settings-section">
+          <!-- Mode Selection -->
+          <div class="settings-group">
+            <h3 class="group-title">CLICK MODE</h3>
+            <div class="mode-grid" id="modeSelector">
+              <button class="mode-btn" data-mode="toggle">
+                <span class="mode-label">TOGGLE</span>
+              </button>
+              <button class="mode-btn active" data-mode="hold">
+                <span class="mode-label">HOLD</span>
+              </button>
+              <button class="mode-btn" data-mode="double">
+                <span class="mode-label">DOUBLE</span>
+              </button>
+              <button class="mode-btn" data-mode="random">
+                <span class="mode-label">RANDOM</span>
+              </button>
+              <button class="mode-btn" data-mode="burst">
+                <span class="mode-label">BURST</span>
+              </button>
+            </div>
+            <select id="mode" class="hidden-select" aria-label="Clicking mode">
+              <option value="toggle">Toggle</option>
+              <option value="hold" selected>Hold</option>
+              <option value="double">Double</option>
+              <option value="random">Random</option>
+              <option value="burst">Burst</option>
             </select>
           </div>
 
-          <div class="setting-row">
-            <label for="minDelay" class="setting-label">Delay (ms)</label>
-            <div class="delay-inputs">
-              <input
-                type="number"
-                id="minDelay"
-                class="setting-input"
-                value="1"
-                min="1"
-                max="10000"
-                placeholder="Min"
+          <!-- Click Settings -->
+          <div class="settings-group">
+            <h3 class="group-title">SETTINGS</h3>
+            
+            <div class="setting-item">
+              <label class="setting-name">Mouse Button</label>
+              <select id="button" class="game-select">
+                <option value="left" selected>LEFT</option>
+                <option value="right">RIGHT</option>
+                <option value="middle">MIDDLE</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <label class="setting-name">Click Delay (ms)</label>
+              <div class="delay-control">
+                <input
+                  type="number"
+                  id="minDelay"
+                  class="game-input"
+                  value="1"
+                  min="1"
+                  max="10000"
+                />
+                <span class="delay-sep">TO</span>
+                <input
+                  type="number"
+                  id="maxDelay"
+                  class="game-input"
+                  value="5"
+                  min="1"
+                  max="10000"
+                />
+              </div>
+            </div>
+
+            <div class="setting-item" id="burstCountRow">
+              <label class="setting-name">Burst Count</label>
+              <input 
+                type="number" 
+                id="burstCount" 
+                class="game-input full-width" 
+                value="10" 
+                min="1" 
+                max="100"
               />
-              <span class="delay-separator">—</span>
-              <input
-                type="number"
-                id="maxDelay"
-                class="setting-input"
-                value="5"
-                min="1"
-                max="10000"
-                placeholder="Max"
+            </div>
+          </div>
+
+          <!-- Hotkeys -->
+          <div class="settings-group">
+            <h3 class="group-title">HOTKEYS</h3>
+            
+            <div class="hotkey-item">
+              <label class="hotkey-name">CLICK KEY</label>
+              <input 
+                type="text" 
+                id="clickKey" 
+                class="key-input" 
+                value="H" 
+                maxlength="10"
               />
             </div>
-          </div>
 
-          <div class="setting-row" id="burstCountRow">
-            <label for="burstCount" class="setting-label">Burst Count</label>
-            <input 
-              type="number" 
-              id="burstCount" 
-              class="setting-input" 
-              value="10" 
-              min="1" 
-              max="100"
-            />
-          </div>
-        </div>
-
-        <!-- Hotkeys Card -->
-        <div class="settings-card">
-          <h2 class="card-title">Hotkeys</h2>
-          
-          <div class="hotkey-row">
-            <div class="hotkey-label">
-              <span class="label-text">Click</span>
-              <span class="label-hint">Trigger clicking</span>
+            <div class="hotkey-item">
+              <label class="hotkey-name">STOP KEY</label>
+              <input 
+                type="text" 
+                id="stopKey" 
+                class="key-input" 
+                value="ESC" 
+                maxlength="10"
+              />
             </div>
-            <input 
-              type="text" 
-              id="clickKey" 
-              class="hotkey-input" 
-              value="h" 
-              maxlength="10"
-              placeholder="Key"
-            />
-          </div>
-
-          <div class="hotkey-row">
-            <div class="hotkey-label">
-              <span class="label-text">Stop</span>
-              <span class="label-hint">Emergency stop</span>
-            </div>
-            <input 
-              type="text" 
-              id="stopKey" 
-              class="hotkey-input" 
-              value="esc" 
-              maxlength="10"
-              placeholder="Key"
-            />
           </div>
         </div>
       </main>
-
-      <footer class="app-footer">
-        <span class="version-info">v0.0.2</span>
-        <span class="divider">·</span>
-        <a href="https://github.com/arvid-berndtsson/auto-clicker" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
-      </footer>
     </div>
 
     <script src="../dist/renderer/app.js"></script>

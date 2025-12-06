@@ -7,6 +7,11 @@ let modeSelect: HTMLSelectElement;
 let modeSelector: HTMLElement;
 let burstCountRow: HTMLElement;
 
+// Quick stats elements
+let currentModeText: HTMLElement;
+let currentButtonText: HTMLElement;
+let currentDelayText: HTMLElement;
+
 // Settings inputs
 let minDelayInput: HTMLInputElement;
 let maxDelayInput: HTMLInputElement;
@@ -35,6 +40,9 @@ function init(): void {
   modeSelect = document.getElementById('mode') as HTMLSelectElement;
   modeSelector = document.getElementById('modeSelector') as HTMLElement;
   burstCountRow = document.getElementById('burstCountRow') as HTMLElement;
+  currentModeText = document.getElementById('currentMode') as HTMLElement;
+  currentButtonText = document.getElementById('currentButton') as HTMLElement;
+  currentDelayText = document.getElementById('currentDelay') as HTMLElement;
   minDelayInput = document.getElementById('minDelay') as HTMLInputElement;
   maxDelayInput = document.getElementById('maxDelay') as HTMLInputElement;
   burstCountInput = document.getElementById('burstCount') as HTMLInputElement;
@@ -68,7 +76,7 @@ function init(): void {
   stopBtn.addEventListener('click', handleStop);
 
   // Mode selector buttons
-  const modeButtons = modeSelector.querySelectorAll('.mode-option');
+  const modeButtons = modeSelector.querySelectorAll('.mode-btn');
   modeButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const mode = button.getAttribute('data-mode');
@@ -79,8 +87,17 @@ function init(): void {
   });
 
   // Add input validation listeners
-  minDelayInput.addEventListener('input', validateDelayInputs);
-  maxDelayInput.addEventListener('input', validateDelayInputs);
+  minDelayInput.addEventListener('input', () => {
+    validateDelayInputs();
+    updateQuickStats();
+  });
+  maxDelayInput.addEventListener('input', () => {
+    validateDelayInputs();
+    updateQuickStats();
+  });
+
+  // Button select listener
+  buttonSelect.addEventListener('change', updateQuickStats);
 
   // Listen for status updates from main process
   window.electronAPI.onClickerStatus((data) => {
@@ -89,11 +106,12 @@ function init(): void {
 
   // Initialize UI based on mode
   handleModeChange();
+  updateQuickStats();
 }
 
 function selectMode(mode: string): void {
   // Update visual selection
-  const modeButtons = modeSelector.querySelectorAll('.mode-option');
+  const modeButtons = modeSelector.querySelectorAll('.mode-btn');
   modeButtons.forEach((button) => {
     if (button.getAttribute('data-mode') === mode) {
       button.classList.add('active');
@@ -107,6 +125,27 @@ function selectMode(mode: string): void {
 
   // Handle mode-specific UI
   handleModeChange();
+  updateQuickStats();
+}
+
+function updateQuickStats(): void {
+  // Update mode
+  const modeNames: Record<string, string> = {
+    toggle: 'TOGGLE',
+    hold: 'HOLD',
+    double: 'DOUBLE',
+    random: 'RANDOM',
+    burst: 'BURST',
+  };
+  currentModeText.textContent = modeNames[modeSelect.value] || 'HOLD';
+
+  // Update button
+  currentButtonText.textContent = buttonSelect.value.toUpperCase();
+
+  // Update delay
+  const min = minDelayInput.value;
+  const max = maxDelayInput.value;
+  currentDelayText.textContent = `${min}-${max}ms`;
 }
 
 function handleModeChange(): void {
@@ -191,13 +230,13 @@ async function handleStart(): Promise<void> {
 
     if (result.success) {
       updateStatus(true);
-      showStatusMessage('Active');
+      showStatusMessage('ACTIVE');
     } else {
-      showStatusMessage(result.message || 'Failed to start', true);
+      showStatusMessage(result.message || 'ERROR', true);
     }
   } catch (error) {
     console.error('Error starting clicker:', error);
-    showStatusMessage('Failed to start', true);
+    showStatusMessage('ERROR', true);
   }
 }
 
@@ -207,11 +246,11 @@ async function handleStop(): Promise<void> {
 
     if (result.success) {
       updateStatus(false);
-      showStatusMessage('Ready');
+      showStatusMessage('OFFLINE');
     }
   } catch (error) {
     console.error('Error stopping clicker:', error);
-    showStatusMessage('Failed to stop', true);
+    showStatusMessage('ERROR', true);
   }
 }
 
@@ -233,10 +272,12 @@ function updateStatus(running: boolean): void {
     buttonSelect.disabled = true;
 
     // Disable mode selector buttons
-    const modeButtons = modeSelector.querySelectorAll('.mode-option');
+    const modeButtons = modeSelector.querySelectorAll('.mode-btn');
     modeButtons.forEach((button) => {
-      (button as HTMLButtonElement).disabled = true;
-      button.classList.add('opacity-50', 'cursor-not-allowed');
+      const btn = button as HTMLButtonElement;
+      btn.disabled = true;
+      btn.style.opacity = '0.3';
+      btn.style.cursor = 'not-allowed';
     });
   } else {
     statusBar.classList.remove('active');
@@ -253,10 +294,12 @@ function updateStatus(running: boolean): void {
     buttonSelect.disabled = false;
 
     // Enable mode selector buttons
-    const modeButtons = modeSelector.querySelectorAll('.mode-option');
+    const modeButtons = modeSelector.querySelectorAll('.mode-btn');
     modeButtons.forEach((button) => {
-      (button as HTMLButtonElement).disabled = false;
-      button.classList.remove('opacity-50', 'cursor-not-allowed');
+      const btn = button as HTMLButtonElement;
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = '';
     });
   }
 }

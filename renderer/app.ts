@@ -171,11 +171,11 @@ function validateDelayInputs(): void {
   const maxDelay = parseInt(maxDelayInput.value);
 
   if (minDelay > 0 && maxDelay > 0 && minDelay > maxDelay) {
-    minDelayInput.style.borderColor = '#ef4444';
-    maxDelayInput.style.borderColor = '#ef4444';
+    minDelayInput.classList.add('border-red-500');
+    maxDelayInput.classList.add('border-red-500');
   } else {
-    minDelayInput.style.borderColor = '';
-    maxDelayInput.style.borderColor = '';
+    minDelayInput.classList.remove('border-red-500');
+    maxDelayInput.classList.remove('border-red-500');
   }
 }
 
@@ -288,8 +288,6 @@ function updateStatus(running: boolean): void {
     statusBar.classList.add('active');
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    startBtn.setAttribute('aria-disabled', 'true');
-    stopBtn.setAttribute('aria-disabled', 'false');
 
     // Disable settings while running
     minDelayInput.disabled = true;
@@ -303,8 +301,6 @@ function updateStatus(running: boolean): void {
     statusBar.classList.remove('active');
     startBtn.disabled = false;
     stopBtn.disabled = true;
-    startBtn.setAttribute('aria-disabled', 'false');
-    stopBtn.setAttribute('aria-disabled', 'true');
 
     // Enable settings when stopped
     minDelayInput.disabled = false;

@@ -8,6 +8,17 @@ const DOUBLE_CLICK_DELAY_MS = 10;
 const RANDOM_MODE_DELAY_MULTIPLIER = 2;
 const SEQUENCES_FILE = path.join(app.getPath('userData'), 'sequences.json');
 
+// Smooth mouse movement constants
+const MIN_MOVEMENT_STEPS = 10;
+const MAX_MOVEMENT_STEPS = 50;
+const PIXELS_PER_STEP = 20;
+const MIN_SPEED_FACTOR = 0.3;
+const SPEED_RANGE = 0.7;
+const TWITCH_PROBABILITY = 0.7;
+const TWITCH_CHECK_THRESHOLD = 0.9;
+const TWITCH_MAGNITUDE = 6;
+const BASE_MOVEMENT_DELAY_MS = 5;
+
 interface ClickerSettings {
   minDelay: number;
   maxDelay: number;
@@ -268,11 +279,11 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
     );
     
     // Calculate number of steps based on distance (more steps for longer distances)
-    const steps = Math.max(10, Math.min(50, Math.floor(distance / 20)));
+    const steps = Math.max(MIN_MOVEMENT_STEPS, Math.min(MAX_MOVEMENT_STEPS, Math.floor(distance / PIXELS_PER_STEP)));
     
     // Randomize movement characteristics
-    const speedVariation = 0.3 + Math.random() * 0.7; // 0.3 to 1.0
-    const shouldAddTwitch = Math.random() > 0.7; // 30% chance of twitchy movement
+    const speedVariation = MIN_SPEED_FACTOR + Math.random() * SPEED_RANGE;
+    const shouldAddTwitch = Math.random() > TWITCH_PROBABILITY;
     
     for (let i = 0; i <= steps; i++) {
       const progress = i / steps;
@@ -290,17 +301,16 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
         x += (Math.random() - 0.5) * 2; // ±1 pixel
         y += (Math.random() - 0.5) * 2;
         
-        if (shouldAddTwitch && Math.random() > 0.9) {
-          x += (Math.random() - 0.5) * 6; // Occasional larger twitch
-          y += (Math.random() - 0.5) * 6;
+        if (shouldAddTwitch && Math.random() > TWITCH_CHECK_THRESHOLD) {
+          x += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
+          y += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
         }
       }
       
       await mouse.setPosition(new Point(Math.round(x), Math.round(y)));
       
       // Variable delay between movements
-      const baseDelay = 5;
-      const delay = baseDelay * speedVariation * (1 + Math.random() * 0.5);
+      const delay = BASE_MOVEMENT_DELAY_MS * speedVariation * (1 + Math.random() * 0.5);
       await sleep(delay);
     }
     

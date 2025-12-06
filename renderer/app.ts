@@ -425,10 +425,17 @@ async function handleLoadSequences(): Promise<void> {
   await loadSequencesFromStorage();
 }
 
+const NO_SEQUENCES_MESSAGE = 'No sequences saved yet';
+
 function renderSequenceList(): void {
   if (loadedSequences.length === 0) {
     noSequencesMsg.style.display = 'block';
-    sequenceList.innerHTML = '<p class="info-text" id="noSequencesMsg">No sequences saved yet</p>';
+    sequenceList.innerHTML = '';
+    const messageEl = document.createElement('p');
+    messageEl.className = 'info-text';
+    messageEl.id = 'noSequencesMsg';
+    messageEl.textContent = NO_SEQUENCES_MESSAGE;
+    sequenceList.appendChild(messageEl);
     return;
   }
   

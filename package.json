@@ -1,0 +1,85 @@
+{
+  "name": "auto-clicker",
+  "version": "0.0.2",
+  "description": "Cross-platform auto clicker with Electron GUI",
+  "main": "dist/electron/main.js",
+  "bin": {
+    "auto-clicker": "./dist/cli.js"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./renderer/styles.css -o ./renderer/output.css",
+    "build:ts": "tsc",
+    "build": "npm run build:css && npm run build:ts",
+    "start": "npm run build && electron . --no-sandbox",
+    "scancode": "npm run build && node dist/tools/scancode.js",
+    "scancode:gui": "npm run build && node dist/tools/scancode.js --gui",
+    "build:app": "npm run build && electron-builder",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,html,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,html,md}\""
+  },
+  "keywords": [
+    "auto-clicker",
+    "automation",
+    "electron"
+  ],
+  "author": "Arvid Berndtsson <arvid@dotarvid.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "autoprefixer": "^10.4.0",
+    "electron": "^33.2.1",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-electron": "^2.0.0",
+    "postcss": "^8.4.0",
+    "prettier": "^3.0.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ]
+  },
+  "build": {
+    "appId": "com.autoclicker.app",
+    "productName": "Auto Clicker",
+    "files": [
+      "dist/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  }
+}

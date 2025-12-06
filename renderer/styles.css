@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  body {
+    @apply font-sans bg-gradient-to-br from-primary-500 to-purple-600 text-gray-800 min-h-screen flex items-center justify-center p-5 m-0;
+  }
+}
+
+@layer components {
+  .container {
+    @apply bg-white rounded-2xl shadow-2xl w-full max-w-full h-full max-h-screen overflow-hidden flex flex-col;
+  }
+
+  header {
+    @apply bg-gradient-to-br from-primary-500 to-purple-600 text-white py-8 px-8 text-center;
+  }
+
+  header h1 {
+    @apply text-3xl mb-2 font-bold;
+  }
+
+  .subtitle {
+    @apply text-sm opacity-90;
+  }
+
+  .status-bar {
+    @apply bg-gray-50 py-4 px-8 flex items-center gap-2.5 border-b border-gray-200 font-medium;
+  }
+
+  .status-indicator {
+    @apply text-xl text-gray-500 transition-colors duration-300;
+  }
+
+  .status-bar.active .status-indicator {
+    @apply text-green-500 animate-pulse;
+  }
+
+  .settings-panel {
+    @apply p-8 flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-8 content-start;
+  }
+
+  .section {
+    @apply mb-0;
+  }
+
+  .section h2 {
+    @apply text-lg text-primary-500 mb-4 font-semibold;
+  }
+
+  .form-group {
+    @apply mb-5;
+  }
+
+  .form-row {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 mb-5;
+  }
+
+  label {
+    @apply block mb-2 font-medium text-gray-700 text-sm;
+  }
+
+  .input-field {
+    @apply w-full py-3 px-4 border-2 border-gray-200 rounded-lg text-sm transition-all duration-300 font-sans;
+    @apply focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100;
+    @apply hover:border-primary-500;
+  }
+
+  .help-text {
+    @apply block mt-1.5 text-xs text-gray-500;
+  }
+
+  .controls {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 my-8 col-span-full;
+  }
+
+  .btn {
+    @apply py-4 px-6 border-none rounded-lg text-base font-semibold cursor-pointer;
+    @apply flex items-center justify-center gap-2 transition-all duration-300 font-sans;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-br from-primary-500 to-purple-600 text-white;
+    @apply hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply bg-red-600 text-white;
+    @apply hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply active:translate-y-0;
+  }
+
+  .btn-icon {
+    @apply text-sm;
+  }
+
+  .info-box {
+    @apply bg-gray-50 p-5 rounded-lg border-l-4 border-primary-500 col-span-full;
+  }
+
+  .info-box h3 {
+    @apply text-base mb-3 text-gray-800;
+  }
+
+  .info-box ul {
+    @apply list-none mb-4;
+  }
+
+  .info-box li {
+    @apply py-1.5 text-sm text-gray-700;
+  }
+
+  .info-box strong {
+    @apply text-primary-500;
+  }
+
+  .warning {
+    @apply text-yellow-800 bg-yellow-100 py-2.5 px-3 rounded-md text-sm m-0;
+  }
+
+  footer {
+    @apply bg-gray-50 py-4 px-8 text-center text-gray-500 text-xs border-t border-gray-200;
+  }
+
+  #burstCountGroup.hidden {
+    display: none;
+  }
+}

@@ -34,4 +34,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 .cache/
-screenshot.png
+screenshot*.png

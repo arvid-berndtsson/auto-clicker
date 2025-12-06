@@ -166,5 +166,5 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 
-# Electron
+# Electron (dist/ already covered above at line 13)
 out/

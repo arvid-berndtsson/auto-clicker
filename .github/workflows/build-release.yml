@@ -44,14 +44,14 @@ jobs:
         run: |
           cd dist
           ls -la
-          zip -r ../auto-clicker-linux.zip . || echo "Warning: Some files may not have been packaged"
+          zip -r ../auto-clicker-Linux.zip . || echo "Warning: Some files may not have been packaged"
 
       - name: Package artifact (macOS)
         if: runner.os == 'macOS'
         run: |
           cd dist
           ls -la
-          zip -r ../auto-clicker-macos.zip . || echo "Warning: Some files may not have been packaged"
+          zip -r ../auto-clicker-macOS.zip . || echo "Warning: Some files may not have been packaged"
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
@@ -59,7 +59,7 @@ jobs:
         run: |
           cd dist
           Get-ChildItem
-          Compress-Archive -Path * -DestinationPath ../auto-clicker-windows.zip
+          Compress-Archive -Path * -DestinationPath ../auto-clicker-Windows.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

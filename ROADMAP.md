@@ -321,8 +321,8 @@ Protect users from detection and account issues.
 - [ ] **Task Automation**
   - Complete quest/task sequences
   - Resource gathering optimization
-  - Economy/trading automation (where allowed)
   - Skill leveling routes
+  - Note: Trading/economy automation typically violates game ToS
 
 - [ ] **Game-Specific Bots**
   - OSRS: Complete skill trainers

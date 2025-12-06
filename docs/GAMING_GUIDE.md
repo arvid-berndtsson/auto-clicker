@@ -138,14 +138,15 @@ Always check the game's Terms of Service before using automation tools. The deve
 - **Mode**: Hold or Burst
 - **Min Delay**: 200-400ms
 - **Max Delay**: 600-1000ms
-- **Click Button**: Left or Right (for planting)
+- **Click Button**: Left (for harvesting) or Right (for planting)
+- **Notes**: Use left click to harvest crops; use right click with seeds selected to plant
 
 #### AFK Fishing
 - **Mode**: Hold
 - **Min Delay**: 5000-8000ms
 - **Max Delay**: 15000-20000ms
-- **Click Button**: Right then Left
-- **Notes**: Need to account for bobber timing
+- **Click Button**: Right (to cast), then Left (to reel in when bobber dips)
+- **Notes**: This requires watching for the bobber dip - basic auto-clicker cannot detect this. Consider using game's built-in AFK fish farms instead for true automation
 
 **Minecraft Safety**:
 - Primarily useful in single-player

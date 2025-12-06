@@ -231,6 +231,13 @@ function updateStatus(running: boolean): void {
     stopKeyInput.disabled = true;
     modeSelect.disabled = true;
     buttonSelect.disabled = true;
+
+    // Disable mode selector buttons
+    const modeButtons = modeSelector.querySelectorAll('.mode-option');
+    modeButtons.forEach((button) => {
+      (button as HTMLButtonElement).disabled = true;
+      button.classList.add('opacity-50', 'cursor-not-allowed');
+    });
   } else {
     statusBar.classList.remove('active');
     startBtn.disabled = false;
@@ -244,6 +251,13 @@ function updateStatus(running: boolean): void {
     stopKeyInput.disabled = false;
     modeSelect.disabled = false;
     buttonSelect.disabled = false;
+
+    // Enable mode selector buttons
+    const modeButtons = modeSelector.querySelectorAll('.mode-option');
+    modeButtons.forEach((button) => {
+      (button as HTMLButtonElement).disabled = false;
+      button.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
   }
 }
 

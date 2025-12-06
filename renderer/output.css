@@ -1125,3 +1125,11 @@ input[type="number"] {
 .hidden {
   display: none;
 }
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}

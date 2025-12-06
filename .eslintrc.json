@@ -1,0 +1,50 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "settings": {
+    "electron": {
+      "version": "33.0.0"
+    }
+  },
+  "plugins": ["@typescript-eslint", "electron"],
+  "env": {
+    "node": true,
+    "es2020": true,
+    "browser": true
+  },
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-var-requires": "warn",
+    "no-console": "off",
+    "no-case-declarations": "off"
+  },
+  "overrides": [
+    {
+      "files": ["renderer/**/*.ts"],
+      "env": {
+        "browser": true,
+        "node": false
+      }
+    },
+    {
+      "files": ["electron/**/*.ts", "tools/**/*.ts", "cli.ts"],
+      "env": {
+        "browser": false,
+        "node": true
+      }
+    }
+  ]
+}

@@ -1,29 +1,66 @@
-// DOM Elements
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
-const statusBar = document.getElementById('statusBar');
-const statusText = document.getElementById('statusText');
-const modeSelect = document.getElementById('mode');
-const burstCountGroup = document.getElementById('burstCountGroup');
+// DOM Elements - will be initialized in init()
+let startBtn: HTMLButtonElement;
+let stopBtn: HTMLButtonElement;
+let statusBar: HTMLElement;
+let statusText: HTMLElement;
+let modeSelect: HTMLSelectElement;
+let burstCountGroup: HTMLElement;
 
 // Settings inputs
-const minDelayInput = document.getElementById('minDelay');
-const maxDelayInput = document.getElementById('maxDelay');
-const burstCountInput = document.getElementById('burstCount');
-const clickKeyInput = document.getElementById('clickKey');
-const stopKeyInput = document.getElementById('stopKey');
-const buttonSelect = document.getElementById('button');
+let minDelayInput: HTMLInputElement;
+let maxDelayInput: HTMLInputElement;
+let burstCountInput: HTMLInputElement;
+let clickKeyInput: HTMLInputElement;
+let stopKeyInput: HTMLInputElement;
+let buttonSelect: HTMLSelectElement;
 
-// State
-let isRunning = false;
+// State - isRunning is managed via updateStatus function
+
+interface ClickerSettings {
+  mode: string;
+  minDelay: number;
+  maxDelay: number;
+  burstCount: number;
+  clickKey: string;
+  stopKey: string;
+  button: string;
+}
 
 // Initialize
-function init() {
+function init(): void {
+  // Get DOM elements
+  startBtn = document.getElementById('startBtn') as HTMLButtonElement;
+  stopBtn = document.getElementById('stopBtn') as HTMLButtonElement;
+  statusBar = document.getElementById('statusBar') as HTMLElement;
+  statusText = document.getElementById('statusText') as HTMLElement;
+  modeSelect = document.getElementById('mode') as HTMLSelectElement;
+  burstCountGroup = document.getElementById('burstCountGroup') as HTMLElement;
+  minDelayInput = document.getElementById('minDelay') as HTMLInputElement;
+  maxDelayInput = document.getElementById('maxDelay') as HTMLInputElement;
+  burstCountInput = document.getElementById('burstCount') as HTMLInputElement;
+  clickKeyInput = document.getElementById('clickKey') as HTMLInputElement;
+  stopKeyInput = document.getElementById('stopKey') as HTMLInputElement;
+  buttonSelect = document.getElementById('button') as HTMLSelectElement;
+
+  // Check if all elements exist
+  if (!startBtn || !stopBtn || !statusBar || !statusText || !modeSelect || !burstCountGroup) {
+    console.error('Required DOM elements not found');
+    return;
+  }
+
+  // Check if electronAPI is available
+  if (!window.electronAPI) {
+    console.error('electronAPI is not available');
+    statusText.textContent = 'Error: electronAPI not available';
+    statusText.style.color = '#dc3545';
+    return;
+  }
+
   // Set up event listeners
   startBtn.addEventListener('click', handleStart);
   stopBtn.addEventListener('click', handleStop);
   modeSelect.addEventListener('change', handleModeChange);
-  
+
   // Listen for status updates from main process
   window.electronAPI.onClickerStatus((data) => {
     updateStatus(data.running);
@@ -33,9 +70,9 @@ function init() {
   handleModeChange();
 }
 
-function handleModeChange() {
+function handleModeChange(): void {
   const mode = modeSelect.value;
-  
+
   // Show/hide burst count based on mode
   if (mode === 'burst') {
     burstCountGroup.classList.remove('hidden');
@@ -44,7 +81,7 @@ function handleModeChange() {
   }
 }
 
-function validateSettings() {
+function validateSettings(): boolean {
   const minDelay = parseInt(minDelayInput.value);
   const maxDelay = parseInt(maxDelayInput.value);
   const burstCount = parseInt(burstCountInput.value);
@@ -72,7 +109,7 @@ function validateSettings() {
   return true;
 }
 
-function getSettings() {
+function getSettings(): ClickerSettings {
   return {
     mode: modeSelect.value,
     minDelay: parseInt(minDelayInput.value),
@@ -80,11 +117,11 @@ function getSettings() {
     burstCount: parseInt(burstCountInput.value),
     clickKey: clickKeyInput.value.toLowerCase(),
     stopKey: stopKeyInput.value.toLowerCase(),
-    button: buttonSelect.value
+    button: buttonSelect.value,
   };
 }
 
-async function handleStart() {
+async function handleStart(): Promise<void> {
   if (!validateSettings()) {
     return;
   }
@@ -93,12 +130,12 @@ async function handleStart() {
 
   try {
     const result = await window.electronAPI.startClicker(settings);
-    
+
     if (result.success) {
       updateStatus(true);
       showStatusMessage('Clicker running... Press stop key to exit.');
     } else {
-      showStatusMessage(result.message, true);
+      showStatusMessage(result.message || 'Failed to start clicker', true);
     }
   } catch (error) {
     console.error('Error starting clicker:', error);
@@ -106,10 +143,10 @@ async function handleStart() {
   }
 }
 
-async function handleStop() {
+async function handleStop(): Promise<void> {
   try {
     const result = await window.electronAPI.stopClicker();
-    
+
     if (result.success) {
       updateStatus(false);
       showStatusMessage('Clicker stopped.');
@@ -120,14 +157,14 @@ async function handleStop() {
   }
 }
 
-function updateStatus(running) {
-  isRunning = running;
-  
+function updateStatus(running: boolean): void {
+  // Update UI based on running state
+
   if (running) {
     statusBar.classList.add('active');
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    
+
     // Disable settings while running
     minDelayInput.disabled = true;
     maxDelayInput.disabled = true;
@@ -140,7 +177,7 @@ function updateStatus(running) {
     statusBar.classList.remove('active');
     startBtn.disabled = false;
     stopBtn.disabled = true;
-    
+
     // Enable settings when stopped
     minDelayInput.disabled = false;
     maxDelayInput.disabled = false;
@@ -152,9 +189,9 @@ function updateStatus(running) {
   }
 }
 
-function showStatusMessage(message, isError = false) {
+function showStatusMessage(message: string, isError = false): void {
   statusText.textContent = message;
-  
+
   if (isError) {
     statusText.style.color = '#dc3545';
   } else {
@@ -164,7 +201,27 @@ function showStatusMessage(message, isError = false) {
 
 // Initialize app when DOM is loaded
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      init();
+    } catch (error) {
+      console.error('Failed to initialize app:', error);
+      const errorText = document.getElementById('statusText');
+      if (errorText) {
+        errorText.textContent = 'Error: Failed to initialize. Check console.';
+        (errorText as HTMLElement).style.color = '#dc3545';
+      }
+    }
+  });
 } else {
-  init();
+  try {
+    init();
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    const errorText = document.getElementById('statusText');
+    if (errorText) {
+      errorText.textContent = 'Error: Failed to initialize. Check console.';
+      (errorText as HTMLElement).style.color = '#dc3545';
+    }
+  }
 }

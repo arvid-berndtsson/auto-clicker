@@ -1,43 +1,70 @@
-const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
-const path = require('path');
-const { mouse, Button } = require('@nut-tree-fork/nut-js');
+import { app, BrowserWindow, ipcMain, globalShortcut, IpcMainInvokeEvent } from 'electron';
+import * as path from 'path';
+import * as fs from 'fs';
+import { mouse, Button } from '@nut-tree-fork/nut-js';
 
 // Constants
 const DOUBLE_CLICK_DELAY_MS = 10;
 const RANDOM_MODE_DELAY_MULTIPLIER = 2;
 
-let mainWindow;
-let clickerInterval = null;
+interface ClickerSettings {
+  minDelay: number;
+  maxDelay: number;
+  burstCount: number;
+  clickKey: string;
+  stopKey: string;
+  button: 'left' | 'right' | 'middle';
+  mode?: string;
+}
+
+let mainWindow: BrowserWindow | null = null;
+let clickerInterval: NodeJS.Timeout | null = null;
 let clickingActive = false;
 let clickerMode = 'hold';
-let settings = {
+let settings: ClickerSettings = {
   minDelay: 1,
   maxDelay: 5,
   burstCount: 10,
   clickKey: 'h',
   stopKey: 'esc',
-  button: 'left'
+  button: 'left',
 };
 
-function createWindow() {
+function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 600,
-    height: 700,
+    width: 1200,
+    height: 800,
+    minWidth: 600,
+    minHeight: 500,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     },
     resizable: true,
-    title: 'Auto Clicker'
+    title: 'Auto Clicker',
   });
 
-  mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../../renderer/index.html'));
 
   // Open DevTools in verbose mode
   if (process.env.AUTO_CLICKER_VERBOSE === '1') {
     mainWindow.webContents.openDevTools();
   }
+
+  // Take screenshot after window loads (for testing)
+  mainWindow.webContents.once('did-finish-load', () => {
+    setTimeout(async () => {
+      try {
+        const image = await mainWindow!.webContents.capturePage();
+        const screenshotPath = path.join(__dirname, '../../screenshot.png');
+        fs.writeFileSync(screenshotPath, image.toPNG());
+        console.log('Screenshot saved to:', screenshotPath);
+      } catch (error) {
+        console.error('Failed to capture screenshot:', error);
+      }
+    }, 1000);
+  });
 }
 
 app.whenReady().then(() => {
@@ -59,22 +86,22 @@ app.on('window-all-closed', () => {
 });
 
 // Utility functions
-function getRandomDelay() {
+function getRandomDelay(): number {
   const min = settings.minDelay;
   const max = settings.maxDelay;
   return Math.random() * (max - min) + min;
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function performClick() {
+async function performClick(): Promise<void> {
   try {
-    const buttonMap = {
-      'left': Button.LEFT,
-      'right': Button.RIGHT,
-      'middle': Button.MIDDLE
+    const buttonMap: Record<string, Button> = {
+      left: Button.LEFT,
+      right: Button.RIGHT,
+      middle: Button.MIDDLE,
     };
     await mouse.click(buttonMap[settings.button] || Button.LEFT);
   } catch (error) {
@@ -82,12 +109,12 @@ async function performClick() {
   }
 }
 
-async function performDoubleClick() {
+async function performDoubleClick(): Promise<void> {
   try {
-    const buttonMap = {
-      'left': Button.LEFT,
-      'right': Button.RIGHT,
-      'middle': Button.MIDDLE
+    const buttonMap: Record<string, Button> = {
+      left: Button.LEFT,
+      right: Button.RIGHT,
+      middle: Button.MIDDLE,
     };
     const btn = buttonMap[settings.button] || Button.LEFT;
     await mouse.click(btn);
@@ -98,7 +125,7 @@ async function performDoubleClick() {
   }
 }
 
-function stopClicking() {
+function stopClicking(): void {
   if (clickerInterval) {
     clearTimeout(clickerInterval);
     clickerInterval = null;
@@ -110,16 +137,16 @@ function stopClicking() {
 }
 
 // Clicker mode implementations
-function runToggleMode() {
+function runToggleMode(): void {
   let clicking = false;
-  
+
   const toggleClicks = () => {
     clicking = !clicking;
     console.log('Toggle mode:', clicking ? 'ON' : 'OFF');
   };
 
   globalShortcut.register(settings.clickKey, toggleClicks);
-  
+
   const clickLoop = () => {
     if (clicking) {
       performClick();
@@ -129,9 +156,9 @@ function runToggleMode() {
   clickLoop();
 }
 
-function runHoldMode() {
+function runHoldMode(): void {
   let isHolding = false;
-  
+
   globalShortcut.register(settings.clickKey, () => {
     // Toggle clicking on/off when key is pressed
     isHolding = !isHolding;
@@ -147,9 +174,9 @@ function runHoldMode() {
   clickLoop();
 }
 
-function runDoubleMode() {
+function runDoubleMode(): void {
   let isDoubleClicking = false;
-  
+
   globalShortcut.register(settings.clickKey, () => {
     // Toggle double-clicking on/off when key is pressed
     isDoubleClicking = !isDoubleClicking;
@@ -165,9 +192,9 @@ function runDoubleMode() {
   clickLoop();
 }
 
-function runRandomMode() {
+function runRandomMode(): void {
   let isRandomClicking = false;
-  
+
   globalShortcut.register(settings.clickKey, () => {
     // Toggle random clicking on/off when key is pressed
     isRandomClicking = !isRandomClicking;
@@ -184,7 +211,7 @@ function runRandomMode() {
   clickLoop();
 }
 
-function runBurstMode() {
+function runBurstMode(): void {
   globalShortcut.register(settings.clickKey, async () => {
     // Execute burst of clicks with random delays
     for (let i = 0; i < settings.burstCount; i++) {
@@ -197,13 +224,13 @@ function runBurstMode() {
 }
 
 // IPC handlers
-ipcMain.handle('start-clicker', async (event, config) => {
+ipcMain.handle('start-clicker', async (event: IpcMainInvokeEvent, config: ClickerSettings) => {
   if (clickingActive && clickerInterval) {
     return { success: false, message: 'Clicker is already running' };
   }
 
   settings = { ...settings, ...config };
-  clickerMode = config.mode;
+  clickerMode = config.mode || 'hold';
   clickingActive = true;
 
   // Unregister previous shortcuts
@@ -236,11 +263,12 @@ ipcMain.handle('start-clicker', async (event, config) => {
         runHoldMode();
     }
 
-    mainWindow.webContents.send('clicker-status', { running: true });
+    mainWindow!.webContents.send('clicker-status', { running: true });
     return { success: true, message: 'Clicker started successfully' };
   } catch (error) {
     console.error('Error starting clicker:', error);
-    return { success: false, message: error.message };
+    const err = error as Error;
+    return { success: false, message: err.message };
   }
 });
 
@@ -254,6 +282,6 @@ ipcMain.handle('get-status', async () => {
   return {
     running: clickingActive,
     mode: clickerMode,
-    settings: settings
+    settings: settings,
   };
 });

@@ -5,15 +5,17 @@
  * Provides CLI functionality for the Electron application
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
-const packageJson = require('./package.json');
+import { spawn } from 'child_process';
+import * as path from 'path';
+import * as fs from 'fs';
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8'));
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 const command = args[0];
 
-function printHelp() {
+function printHelp(): void {
   console.log(`
 Auto Clicker CLI v${packageJson.version}
 
@@ -37,33 +39,32 @@ Note: Use the GUI for the best experience with all clicking options.
 `);
 }
 
-function printVersion() {
+function printVersion(): void {
   console.log(packageJson.version);
 }
 
-function launchGui(verbose = false) {
+function launchGui(verbose = false): void {
   console.log('Launching Auto Clicker GUI...');
-  
+
   const electronPath = path.join(__dirname, 'node_modules', '.bin', 'electron');
-  const mainPath = path.join(__dirname, 'electron', 'main.js');
-  
-  const args = [__dirname, '--no-sandbox'];
-  
+
+  const spawnArgs = [__dirname, '--no-sandbox'];
+
   if (verbose) {
     console.log('Verbose mode enabled - DevTools will be shown');
     process.env.AUTO_CLICKER_VERBOSE = '1';
   }
-  
-  const child = spawn(electronPath, args, {
+
+  const child = spawn(electronPath, spawnArgs, {
     stdio: 'inherit',
-    env: process.env
+    env: process.env,
   });
-  
+
   child.on('error', (error) => {
     console.error('Failed to start Electron:', error);
     process.exit(1);
   });
-  
+
   child.on('exit', (code) => {
     process.exit(code || 0);
   });
@@ -71,26 +72,27 @@ function launchGui(verbose = false) {
 
 // Command routing
 switch (command) {
-  case 'gui':
+  case 'gui': {
     const verbose = args.includes('--verbose') || args.includes('-v');
     launchGui(verbose);
     break;
-  
+  }
+
   case 'version':
     printVersion();
     break;
-  
+
   case 'help':
   case '--help':
   case '-h':
     printHelp();
     break;
-  
+
   case undefined:
     // No command provided, launch GUI by default
     launchGui();
     break;
-  
+
   default:
     console.error(`Unknown command: ${command}`);
     console.error('Run "auto-clicker help" for usage information.');

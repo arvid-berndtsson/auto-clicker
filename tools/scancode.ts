@@ -5,11 +5,19 @@
  * Press any key to see its information, press ESC to exit
  */
 
-const { app, BrowserWindow } = require('electron');
-const readline = require('readline');
+import { app, BrowserWindow } from 'electron';
+import * as readline from 'readline';
+
+interface KeyInfo {
+  name?: string;
+  sequence?: string;
+  shift?: boolean;
+  ctrl?: boolean;
+  meta?: boolean;
+}
 
 // For CLI-based scancode detection (simpler approach)
-function cliScancode() {
+function cliScancode(): void {
   console.log('\n=== Keyboard Scancode Utility ===');
   console.log('Press any key to see its information');
   console.log('Press Ctrl+C to exit\n');
@@ -20,7 +28,7 @@ function cliScancode() {
     process.stdin.setRawMode(true);
   }
 
-  process.stdin.on('keypress', (str, key) => {
+  process.stdin.on('keypress', (str: string, key: KeyInfo) => {
     if (key.ctrl && key.name === 'c') {
       console.log('\nExiting...');
       process.exit(0);
@@ -32,7 +40,7 @@ function cliScancode() {
     console.log(`Shift: ${key.shift || false}`);
     console.log(`Ctrl: ${key.ctrl || false}`);
     console.log(`Alt/Meta: ${key.meta || false}`);
-    
+
     if (key.name === 'escape') {
       console.log('\nESC pressed. Exiting...');
       process.exit(0);
@@ -46,16 +54,16 @@ function cliScancode() {
 }
 
 // For Electron-based GUI scancode detection (more user-friendly)
-function guiScancode() {
+function guiScancode(): void {
   app.whenReady().then(() => {
     const win = new BrowserWindow({
       width: 500,
       height: 400,
       webPreferences: {
         nodeIntegration: false,
-        contextIsolation: true
+        contextIsolation: true,
       },
-      title: 'Scancode Utility'
+      title: 'Scancode Utility',
     });
 
     const html = `

@@ -11,6 +11,7 @@ Place application icons in this directory for building distributable packages.
 ## Icon Design Guidelines
 
 The icon should represent an auto-clicker or mouse automation tool. Consider using:
+
 - A mouse cursor symbol
 - A click/pointer icon
 - An automation/refresh symbol
@@ -21,16 +22,19 @@ The icon should represent an auto-clicker or mouse automation tool. Consider usi
 You can use online tools or command-line utilities to convert a single PNG to multiple formats:
 
 ### Using ImageMagick (for PNG to ICO):
+
 ```bash
 convert icon.png -define icon:auto-resize=256,128,64,48,32,16 icon.ico
 ```
 
 ### Using png2icns (for PNG to ICNS on macOS):
+
 ```bash
 png2icns icon.icns icon.png
 ```
 
 ### Online Tools:
+
 - https://convertio.co/png-ico/
 - https://cloudconvert.com/png-to-icns
 - https://iconverticons.com/online/

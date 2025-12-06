@@ -1,108 +1,127 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
-  <title>Auto Clicker</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🖱️ Auto Clicker</h1>
-      <p class="subtitle">Cross-platform automation tool</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
+    />
+    <title>Auto Clicker</title>
+    <link rel="stylesheet" href="output.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🖱️ Auto Clicker</h1>
+        <p class="subtitle">Cross-platform automation tool</p>
+      </header>
 
-    <div class="status-bar" id="statusBar">
-      <span class="status-indicator" id="statusIndicator">●</span>
-      <span id="statusText">Idle</span>
+      <div class="status-bar" id="statusBar">
+        <span class="status-indicator" id="statusIndicator">●</span>
+        <span id="statusText">Idle</span>
+      </div>
+
+      <main class="settings-panel">
+        <div class="section">
+          <h2>Click Settings</h2>
+
+          <div class="form-group">
+            <label for="mode">Mode</label>
+            <select id="mode" class="input-field">
+              <option value="toggle">Toggle - Tap to start/stop</option>
+              <option value="hold" selected>Hold - Tap to toggle clicking</option>
+              <option value="double">Double - Tap to toggle double-clicking</option>
+              <option value="random">Random - Tap to toggle with jitter</option>
+              <option value="burst">Burst - Press for burst of clicks</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="button">Mouse Button</label>
+            <select id="button" class="input-field">
+              <option value="left" selected>Left Button</option>
+              <option value="right">Right Button</option>
+              <option value="middle">Middle Button</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="minDelay">Min Delay (ms)</label>
+              <input
+                type="number"
+                id="minDelay"
+                class="input-field"
+                value="1"
+                min="1"
+                max="10000"
+              />
+            </div>
+            <div class="form-group">
+              <label for="maxDelay">Max Delay (ms)</label>
+              <input
+                type="number"
+                id="maxDelay"
+                class="input-field"
+                value="5"
+                min="1"
+                max="10000"
+              />
+            </div>
+          </div>
+
+          <div class="form-group" id="burstCountGroup">
+            <label for="burstCount">Burst Count</label>
+            <input type="number" id="burstCount" class="input-field" value="10" min="1" max="100" />
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Hotkeys</h2>
+
+          <div class="form-group">
+            <label for="clickKey">Click Key</label>
+            <input type="text" id="clickKey" class="input-field" value="h" maxlength="10" />
+            <small class="help-text">Key to trigger clicking</small>
+          </div>
+
+          <div class="form-group">
+            <label for="stopKey">Stop Key</label>
+            <input type="text" id="stopKey" class="input-field" value="esc" maxlength="10" />
+            <small class="help-text">Key to stop the clicker</small>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="startBtn" class="btn btn-primary">
+            <span class="btn-icon">▶</span> Start Clicker
+          </button>
+          <button id="stopBtn" class="btn btn-secondary" disabled>
+            <span class="btn-icon">■</span> Stop Clicker
+          </button>
+        </div>
+
+        <div class="info-box">
+          <h3>Quick Guide</h3>
+          <ul>
+            <li><strong>Toggle:</strong> Tap the click key to start/stop automatic clicking</li>
+            <li><strong>Hold:</strong> Tap the click key to toggle clicking on/off</li>
+            <li><strong>Double:</strong> Tap the click key to toggle double-clicking on/off</li>
+            <li><strong>Random:</strong> Adds extra randomness to click timing, tap to toggle</li>
+            <li>
+              <strong>Burst:</strong> Fires multiple rapid clicks each time you press the click key
+            </li>
+          </ul>
+          <p class="warning">⚠️ Press the stop key (ESC) at any time to stop clicking</p>
+        </div>
+      </main>
+
+      <footer>
+        <p>Version 0.0.2 | MIT License</p>
+      </footer>
     </div>
 
-    <main class="settings-panel">
-      <div class="section">
-        <h2>Click Settings</h2>
-        
-        <div class="form-group">
-          <label for="mode">Mode</label>
-          <select id="mode" class="input-field">
-            <option value="toggle">Toggle - Tap to start/stop</option>
-            <option value="hold" selected>Hold - Tap to toggle clicking</option>
-            <option value="double">Double - Tap to toggle double-clicking</option>
-            <option value="random">Random - Tap to toggle with jitter</option>
-            <option value="burst">Burst - Press for burst of clicks</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="button">Mouse Button</label>
-          <select id="button" class="input-field">
-            <option value="left" selected>Left Button</option>
-            <option value="right">Right Button</option>
-            <option value="middle">Middle Button</option>
-          </select>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="minDelay">Min Delay (ms)</label>
-            <input type="number" id="minDelay" class="input-field" value="1" min="1" max="10000">
-          </div>
-          <div class="form-group">
-            <label for="maxDelay">Max Delay (ms)</label>
-            <input type="number" id="maxDelay" class="input-field" value="5" min="1" max="10000">
-          </div>
-        </div>
-
-        <div class="form-group" id="burstCountGroup">
-          <label for="burstCount">Burst Count</label>
-          <input type="number" id="burstCount" class="input-field" value="10" min="1" max="100">
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Hotkeys</h2>
-        
-        <div class="form-group">
-          <label for="clickKey">Click Key</label>
-          <input type="text" id="clickKey" class="input-field" value="h" maxlength="10">
-          <small class="help-text">Key to trigger clicking</small>
-        </div>
-
-        <div class="form-group">
-          <label for="stopKey">Stop Key</label>
-          <input type="text" id="stopKey" class="input-field" value="esc" maxlength="10">
-          <small class="help-text">Key to stop the clicker</small>
-        </div>
-      </div>
-
-      <div class="controls">
-        <button id="startBtn" class="btn btn-primary">
-          <span class="btn-icon">▶</span> Start Clicker
-        </button>
-        <button id="stopBtn" class="btn btn-secondary" disabled>
-          <span class="btn-icon">■</span> Stop Clicker
-        </button>
-      </div>
-
-      <div class="info-box">
-        <h3>Quick Guide</h3>
-        <ul>
-          <li><strong>Toggle:</strong> Tap the click key to start/stop automatic clicking</li>
-          <li><strong>Hold:</strong> Tap the click key to toggle clicking on/off</li>
-          <li><strong>Double:</strong> Tap the click key to toggle double-clicking on/off</li>
-          <li><strong>Random:</strong> Adds extra randomness to click timing, tap to toggle</li>
-          <li><strong>Burst:</strong> Fires multiple rapid clicks each time you press the click key</li>
-        </ul>
-        <p class="warning">⚠️ Press the stop key (ESC) at any time to stop clicking</p>
-      </div>
-    </main>
-
-    <footer>
-      <p>Version 0.0.2 | MIT License</p>
-    </footer>
-  </div>
-
-  <script src="app.js"></script>
-</body>
+    <script src="../dist/renderer/app.js"></script>
+  </body>
 </html>

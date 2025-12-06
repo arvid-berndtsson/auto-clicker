@@ -23,17 +23,20 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd auto-clicker
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Run the application:
+
 ```bash
 pnpm start
 # or
@@ -95,6 +98,7 @@ pnpm build:linux   # Linux
 ```
 
 Results are placed in the `dist/` folder:
+
 - **Windows**: `.exe` installer
 - **macOS**: `.dmg` disk image
 - **Linux**: `.AppImage` and `.deb` package

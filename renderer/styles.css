@@ -224,7 +224,8 @@
 
   .toast-close {
     @apply cursor-pointer text-white opacity-70 hover:opacity-100 transition-opacity;
-    @apply text-lg font-bold leading-none;
+    @apply font-bold leading-none;
+    font-size: 1.125rem;
   }
 
   @keyframes slide-in-right {

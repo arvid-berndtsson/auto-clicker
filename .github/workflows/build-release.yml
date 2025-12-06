@@ -43,26 +43,29 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cd dist
-          zip -r auto-clicker-linux.zip *.AppImage *.deb 2>/dev/null || true
+          ls -la
+          zip -r ../auto-clicker-linux.zip . || echo "Warning: Some files may not have been packaged"
 
       - name: Package artifact (macOS)
         if: runner.os == 'macOS'
         run: |
           cd dist
-          zip -r auto-clicker-macos.zip *.dmg 2>/dev/null || true
+          ls -la
+          zip -r ../auto-clicker-macos.zip . || echo "Warning: Some files may not have been packaged"
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: pwsh
         run: |
           cd dist
-          7z a auto-clicker-windows.zip *.exe 2>/dev/null || true
+          Get-ChildItem
+          Compress-Archive -Path * -DestinationPath ../auto-clicker-windows.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auto-clicker-${{ toLower(runner.os) }}
-          path: dist/auto-clicker-${{ toLower(runner.os) }}.zip
+          name: auto-clicker-${{ runner.os }}
+          path: auto-clicker-${{ runner.os }}.zip
           retention-days: 7
 
   release:

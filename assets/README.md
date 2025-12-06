@@ -38,3 +38,24 @@ png2icns icon.icns icon.png
 ## Note
 
 If icon files are not present, Electron will use default icons for the application.
+
+## Adding Icons to the Build
+
+Once you have created the icon files, update `package.json` to reference them:
+
+```json
+"win": {
+  "target": ["nsis"],
+  "icon": "assets/icon.ico"
+},
+"mac": {
+  "target": ["dmg"],
+  "icon": "assets/icon.icns",
+  "category": "public.app-category.utilities"
+},
+"linux": {
+  "target": ["AppImage", "deb"],
+  "icon": "assets/icon.png",
+  "category": "Utility"
+}
+```

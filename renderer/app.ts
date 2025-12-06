@@ -20,6 +20,13 @@ let clickKeyInput: HTMLInputElement;
 let stopKeyInput: HTMLInputElement;
 let buttonSelect: HTMLSelectElement;
 
+// Recording elements
+let startRecordBtn: HTMLButtonElement;
+let stopRecordBtn: HTMLButtonElement;
+let sequenceList: HTMLElement;
+let loadSequencesBtn: HTMLButtonElement;
+let noSequencesMsg: HTMLElement;
+
 interface ClickerSettings {
   mode: string;
   minDelay: number;
@@ -29,6 +36,25 @@ interface ClickerSettings {
   stopKey: string;
   button: string;
 }
+
+interface RecordedAction {
+  type: 'click' | 'move';
+  x: number;
+  y: number;
+  button?: string;
+  timestamp: number;
+  delay?: number;
+}
+
+interface RecordedSequence {
+  name: string;
+  actions: RecordedAction[];
+  created: number;
+}
+
+// Recording state
+let currentRecordedSequence: RecordedSequence | null = null;
+let loadedSequences: RecordedSequence[] = [];
 
 // Initialize
 function init(): void {
@@ -49,6 +75,13 @@ function init(): void {
   clickKeyInput = document.getElementById('clickKey') as HTMLInputElement;
   stopKeyInput = document.getElementById('stopKey') as HTMLInputElement;
   buttonSelect = document.getElementById('button') as HTMLSelectElement;
+  
+  // Recording elements
+  startRecordBtn = document.getElementById('startRecordBtn') as HTMLButtonElement;
+  stopRecordBtn = document.getElementById('stopRecordBtn') as HTMLButtonElement;
+  sequenceList = document.getElementById('sequenceList') as HTMLElement;
+  loadSequencesBtn = document.getElementById('loadSequencesBtn') as HTMLButtonElement;
+  noSequencesMsg = document.getElementById('noSequencesMsg') as HTMLElement;
 
   // Check if all elements exist
   if (
@@ -99,14 +132,25 @@ function init(): void {
   // Button select listener
   buttonSelect.addEventListener('change', updateQuickStats);
 
+  // Recording event listeners
+  startRecordBtn.addEventListener('click', handleStartRecording);
+  stopRecordBtn.addEventListener('click', handleStopRecording);
+  loadSequencesBtn.addEventListener('click', handleLoadSequences);
+
   // Listen for status updates from main process
   window.electronAPI.onClickerStatus((data) => {
     updateStatus(data.running);
   });
 
+  // Listen for recording status updates
+  window.electronAPI.onRecordingStatus((data) => {
+    updateRecordingStatus(data.recording);
+  });
+
   // Initialize UI based on mode
   handleModeChange();
   updateQuickStats();
+  loadSequencesFromStorage();
 }
 
 function selectMode(mode: string): void {
@@ -311,6 +355,162 @@ function showStatusMessage(message: string, isError = false): void {
     statusText.style.color = '#dc3545';
   } else {
     statusText.style.color = '';
+  }
+}
+
+// Recording functions
+async function handleStartRecording(): Promise<void> {
+  try {
+    const result = await window.electronAPI.startRecording();
+    if (result.success) {
+      showStatusMessage('Recording...', false);
+    } else {
+      showStatusMessage(result.message || 'Failed to start recording', true);
+    }
+  } catch (error) {
+    console.error('Error starting recording:', error);
+    showStatusMessage('ERROR', true);
+  }
+}
+
+async function handleStopRecording(): Promise<void> {
+  try {
+    const result = await window.electronAPI.stopRecording();
+    if (result.success && result.sequence) {
+      currentRecordedSequence = result.sequence;
+      
+      // Prompt for name
+      const name = prompt('Enter a name for this sequence:', currentRecordedSequence.name);
+      if (name) {
+        currentRecordedSequence.name = name;
+        await saveCurrentSequence();
+      }
+      
+      showStatusMessage('Recording saved', false);
+    } else {
+      showStatusMessage(result.message || 'Failed to stop recording', true);
+    }
+  } catch (error) {
+    console.error('Error stopping recording:', error);
+    showStatusMessage('ERROR', true);
+  }
+}
+
+async function saveCurrentSequence(): Promise<void> {
+  if (!currentRecordedSequence) return;
+  
+  try {
+    const result = await window.electronAPI.saveSequence(currentRecordedSequence);
+    if (result.success) {
+      await loadSequencesFromStorage();
+    }
+  } catch (error) {
+    console.error('Error saving sequence:', error);
+  }
+}
+
+async function loadSequencesFromStorage(): Promise<void> {
+  try {
+    const result = await window.electronAPI.loadSequences();
+    if (result.success && result.sequences) {
+      loadedSequences = result.sequences;
+      renderSequenceList();
+    }
+  } catch (error) {
+    console.error('Error loading sequences:', error);
+  }
+}
+
+async function handleLoadSequences(): Promise<void> {
+  await loadSequencesFromStorage();
+}
+
+function renderSequenceList(): void {
+  if (loadedSequences.length === 0) {
+    noSequencesMsg.style.display = 'block';
+    sequenceList.innerHTML = '<p class="info-text" id="noSequencesMsg">No sequences saved yet</p>';
+    return;
+  }
+  
+  noSequencesMsg.style.display = 'none';
+  sequenceList.innerHTML = '';
+  
+  loadedSequences.forEach((sequence) => {
+    const seqDiv = document.createElement('div');
+    seqDiv.className = 'sequence-item';
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'sequence-name';
+    nameSpan.textContent = sequence.name;
+    
+    const actionsSpan = document.createElement('span');
+    actionsSpan.className = 'sequence-actions';
+    actionsSpan.textContent = `${sequence.actions.length} actions`;
+    
+    const playBtn = document.createElement('button');
+    playBtn.className = 'sequence-btn play-btn';
+    playBtn.textContent = 'PLAY';
+    playBtn.onclick = () => handlePlaySequence(sequence);
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'sequence-btn delete-btn';
+    deleteBtn.textContent = 'DELETE';
+    deleteBtn.onclick = () => handleDeleteSequence(sequence.name);
+    
+    seqDiv.appendChild(nameSpan);
+    seqDiv.appendChild(actionsSpan);
+    seqDiv.appendChild(playBtn);
+    seqDiv.appendChild(deleteBtn);
+    
+    sequenceList.appendChild(seqDiv);
+  });
+}
+
+async function handlePlaySequence(sequence: RecordedSequence): Promise<void> {
+  try {
+    showStatusMessage('Playing sequence...', false);
+    const result = await window.electronAPI.playSequence(sequence);
+    if (result.success) {
+      showStatusMessage('Sequence completed', false);
+    } else {
+      showStatusMessage(result.message || 'Failed to play sequence', true);
+    }
+  } catch (error) {
+    console.error('Error playing sequence:', error);
+    showStatusMessage('ERROR', true);
+  }
+}
+
+async function handleDeleteSequence(name: string): Promise<void> {
+  if (!confirm(`Delete sequence "${name}"?`)) {
+    return;
+  }
+  
+  try {
+    const result = await window.electronAPI.deleteSequence(name);
+    if (result.success) {
+      await loadSequencesFromStorage();
+      showStatusMessage('Sequence deleted', false);
+    } else {
+      showStatusMessage(result.message || 'Failed to delete sequence', true);
+    }
+  } catch (error) {
+    console.error('Error deleting sequence:', error);
+    showStatusMessage('ERROR', true);
+  }
+}
+
+function updateRecordingStatus(recording: boolean): void {
+  if (recording) {
+    startRecordBtn.disabled = true;
+    stopRecordBtn.disabled = false;
+    startRecordBtn.style.opacity = '0.5';
+    stopRecordBtn.style.opacity = '1';
+  } else {
+    startRecordBtn.disabled = false;
+    stopRecordBtn.disabled = true;
+    startRecordBtn.style.opacity = '1';
+    stopRecordBtn.style.opacity = '0.5';
   }
 }
 

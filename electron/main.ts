@@ -301,8 +301,8 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
       let x = currentPos.x + deltaX * eased;
       let y = currentPos.y + deltaY * eased;
       
-      // Add micro-movements and occasional twitches (but not on the last step to ensure accuracy)
-      if (i < steps) {
+      // Add micro-movements and occasional twitches (but not on first or last step)
+      if (i > 1 && i < steps) {
         x += (Math.random() - 0.5) * 2; // ±1 pixel
         y += (Math.random() - 0.5) * 2;
         
@@ -310,7 +310,7 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
           x += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
           y += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
         }
-      } else {
+      } else if (i === steps) {
         // On the final step, go exactly to the target without random deviations
         x = targetX;
         y = targetY;

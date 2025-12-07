@@ -274,9 +274,14 @@ function runBurstMode(): void {
 async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> {
   try {
     const currentPos = await mouse.getPosition();
-    const distance = Math.sqrt(
-      Math.pow(targetX - currentPos.x, 2) + Math.pow(targetY - currentPos.y, 2)
-    );
+    const deltaX = targetX - currentPos.x;
+    const deltaY = targetY - currentPos.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // Skip movement if already at target (within 1 pixel tolerance)
+    if (distance < 1) {
+      return;
+    }
     
     // Calculate number of steps based on distance (more steps for longer distances)
     const steps = Math.max(MIN_MOVEMENT_STEPS, Math.min(MAX_MOVEMENT_STEPS, Math.floor(distance / PIXELS_PER_STEP)));
@@ -285,7 +290,7 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
     const speedVariation = MIN_SPEED_FACTOR + Math.random() * SPEED_RANGE;
     const shouldAddTwitch = Math.random() > TWITCH_PROBABILITY;
     
-    for (let i = 0; i <= steps; i++) {
+    for (let i = 1; i <= steps; i++) {
       const progress = i / steps;
       
       // Ease-in-out curve for more natural movement
@@ -293,11 +298,11 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
         ? 2 * progress * progress
         : 1 - Math.pow(-2 * progress + 2, 2) / 2;
       
-      let x = currentPos.x + (targetX - currentPos.x) * eased;
-      let y = currentPos.y + (targetY - currentPos.y) * eased;
+      let x = currentPos.x + deltaX * eased;
+      let y = currentPos.y + deltaY * eased;
       
-      // Add micro-movements and occasional twitches
-      if (i > 0 && i < steps) {
+      // Add micro-movements and occasional twitches (but not on the last step to ensure accuracy)
+      if (i < steps) {
         x += (Math.random() - 0.5) * 2; // ±1 pixel
         y += (Math.random() - 0.5) * 2;
         
@@ -305,17 +310,20 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
           x += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
           y += (Math.random() - 0.5) * TWITCH_MAGNITUDE;
         }
+      } else {
+        // On the final step, go exactly to the target without random deviations
+        x = targetX;
+        y = targetY;
       }
       
       await mouse.setPosition(new Point(Math.round(x), Math.round(y)));
       
-      // Variable delay between movements
-      const delay = BASE_MOVEMENT_DELAY_MS * speedVariation * (1 + Math.random() * 0.5);
-      await sleep(delay);
+      // Variable delay between movements (but skip delay after the final movement)
+      if (i < steps) {
+        const delay = BASE_MOVEMENT_DELAY_MS * speedVariation * (1 + Math.random() * 0.5);
+        await sleep(delay);
+      }
     }
-    
-    // Ensure we end exactly at target
-    await mouse.setPosition(new Point(targetX, targetY));
   } catch (error) {
     console.error('Error in smooth mouse movement:', error);
     throw error;

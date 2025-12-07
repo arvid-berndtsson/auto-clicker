@@ -30,11 +30,11 @@ This roadmap outlines the strategic development path to position the Auto Clicke
 
 Gaming platforms have sophisticated anti-cheat systems. Making the auto-clicker more human-like is essential.
 
-- [ ] **Humanized Click Patterns**
-  - Implement variable acceleration/deceleration curves between clicks
-  - Add micro-movements before clicks (±1-3 pixels)
-  - Random click position variation within a defined area
-  - Simulate natural mouse drift between actions
+- [x] **Humanized Click Patterns**
+  - [x] Implement variable acceleration/deceleration curves between clicks
+  - [x] Add micro-movements before clicks (±1-3 pixels)
+  - [ ] Random click position variation within a defined area
+  - [x] Simulate natural mouse drift between actions
 
 - [ ] **Advanced Randomization**
   - Gaussian distribution for delays (instead of uniform random)
@@ -53,16 +53,16 @@ Gaming platforms have sophisticated anti-cheat systems. Making the auto-clicker 
 
 Many games require clicking multiple locations in sequence.
 
-- [ ] **Click Sequence Recording**
-  - Record multiple click positions
-  - Save and load click sequences
-  - Visual overlay showing click points
-  - Edit sequence order and timing
+- [x] **Click Sequence Recording**
+  - [x] Record multiple click positions
+  - [x] Save and load click sequences
+  - [ ] Visual overlay showing click points
+  - [ ] Edit sequence order and timing
 
-- [ ] **Pattern-Based Clicking**
-  - Predefined patterns (grid, circle, line, random area)
-  - Area-based clicking (click randomly within bounds)
-  - Path-following (smooth mouse movement along path)
+- [x] **Pattern-Based Clicking**
+  - [ ] Predefined patterns (grid, circle, line, random area)
+  - [ ] Area-based clicking (click randomly within bounds)
+  - [x] Path-following (smooth mouse movement along path)
 
 - [ ] **Conditional Clicking**
   - Click different locations based on time
@@ -99,11 +99,11 @@ Different games and activities require different settings.
 
 Detect game elements and respond accordingly.
 
-- [ ] **Screen Region Monitoring**
-  - Define areas of screen to monitor
-  - Detect color changes (health bars, notifications)
-  - Pixel-based triggers
-  - OCR for text detection
+- [x] **Screen Region Monitoring**
+  - [x] Define areas of screen to monitor
+  - [x] Detect color changes (health bars, notifications)
+  - [x] Pixel-based triggers
+  - [ ] OCR for text detection
 
 - [ ] **Game State Detection**
   - Detect when inventory is full

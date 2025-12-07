@@ -166,6 +166,45 @@
               />
             </div>
           </div>
+
+          <!-- Recording -->
+          <div class="settings-group">
+            <h3 class="group-title">RECORDING</h3>
+            
+            <div class="recording-controls">
+              <button id="startRecordBtn" class="game-btn record-btn">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="12" r="8"/>
+                </svg>
+                <span class="btn-text">RECORD</span>
+              </button>
+              <button id="stopRecordBtn" class="game-btn" disabled>
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="6" width="12" height="12"/>
+                </svg>
+                <span class="btn-text">STOP</span>
+              </button>
+            </div>
+
+            <div class="recording-info">
+              <p class="info-text">Click RECORD, then press <strong>Ctrl+Shift+R</strong> at each position where you want to record a click. Click STOP when done.</p>
+            </div>
+          </div>
+
+          <!-- Sequences -->
+          <div class="settings-group">
+            <h3 class="group-title">SEQUENCES</h3>
+            
+            <div class="sequence-list" id="sequenceList">
+              <p class="info-text" id="noSequencesMsg">No sequences saved yet</p>
+            </div>
+            
+            <div class="sequence-controls">
+              <button id="loadSequencesBtn" class="game-btn">
+                <span class="btn-text">LOAD SEQUENCES</span>
+              </button>
+            </div>
+          </div>
         </div>
       </main>
     </div>

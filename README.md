@@ -4,12 +4,21 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 
 ## Features
 
+### Core Clicking
 - Five clicking strategies: toggle, hold, double, random, and burst.
 - Configurable click/stop hotkeys, delays, mouse button, and burst sizes.
 - Modern Electron-based GUI with improved UI/UX design.
 - Single codebase for Windows, macOS, and Linux - no need for separate builds.
 - Built-in safety: `esc` (or custom stop key) stops the clicker instantly.
 - Cross-platform automation using native system APIs.
+
+### Advanced Features
+- **Action Recording**: Record click sequences at specific screen positions using `Ctrl+Shift+R` hotkey.
+- **Sequence Playback**: Save and replay recorded action sequences with exact timing and positions.
+- **Smooth Mouse Movement**: Human-like mouse movement with variable speed, acceleration curves, and micro-adjustments.
+- **Color Recognition**: Detect specific colors in screen regions for conditional automation.
+- **Image Recognition**: Basic support for finding images on screen (extensible for advanced use cases).
+- **Sequence Management**: Save, load, play, and delete recorded sequences with an intuitive UI.
 
 ## Repository Layout
 
@@ -22,6 +31,7 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 
 - **[ROADMAP.md](ROADMAP.md)** - Comprehensive development plan for gaming enhancements targeting Roblox, RuneScape (OSRS & RS3), Minecraft, World of Warcraft, Final Fantasy XIV, and other popular games
 - **[Gaming Guide](docs/GAMING_GUIDE.md)** - Game-specific configuration recommendations, safety tips, and best practices
+- **[Recording Guide](docs/RECORDING_GUIDE.md)** - Complete guide to action recording, sequence playback, smooth mouse movement, and color recognition features
 
 ## Getting Started
 
@@ -87,6 +97,32 @@ The Auto Clicker features an intuitive GUI where you can:
 3. **Start clicking**: Press the "Start Clicker" button or use your configured hotkey
 
 4. **Stop at any time**: Press the stop key (default: ESC) or click the "Stop Clicker" button
+
+### Recording and Playback
+
+Record sequences of clicks at specific screen positions for repetitive tasks:
+
+1. **Start Recording**: Click the "RECORD" button in the Recording section
+2. **Capture Clicks**: Move your mouse to each desired position and press `Ctrl+Shift+R` to record that location
+3. **Stop Recording**: Click the "STOP" button when done
+4. **Save Sequence**: Enter a name for your sequence when prompted
+5. **Play Sequences**: Click "LOAD SEQUENCES" to see saved sequences, then click "PLAY" to execute them
+6. **Manage Sequences**: Delete unwanted sequences with the "DELETE" button
+
+**Note**: Recorded sequences include exact screen positions and timing between clicks. The smooth mouse movement feature ensures playback appears natural and human-like.
+
+### Advanced Automation Features
+
+The Auto Clicker includes several advanced features for gaming and automation:
+
+- **Smooth Mouse Movement**: All recorded sequences use smooth, human-like mouse movements with:
+  - Variable speed (sometimes fast, sometimes slow)
+  - Acceleration and deceleration curves
+  - Micro-movements and occasional twitches
+  - Random variations to avoid detection
+
+- **Color Recognition**: Use the API to detect specific colors on screen for conditional actions
+- **Screen Monitoring**: Capture and analyze screen regions for automation triggers
 
 ## Building Executables
 

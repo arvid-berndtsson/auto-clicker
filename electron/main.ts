@@ -290,7 +290,10 @@ async function smoothMoveMouse(targetX: number, targetY: number): Promise<void> 
     const speedVariation = MIN_SPEED_FACTOR + Math.random() * SPEED_RANGE;
     const shouldAddTwitch = Math.random() > TWITCH_PROBABILITY;
     
-    for (let i = 1; i <= steps; i++) {
+    for (let i = 0; i <= steps; i++) {
+      // Skip the initial step where progress=0 (would just set to current position)
+      if (i === 0) continue;
+      
       const progress = i / steps;
       
       // Ease-in-out curve for more natural movement

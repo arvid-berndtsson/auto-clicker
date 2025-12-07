@@ -10,6 +10,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     name: build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:

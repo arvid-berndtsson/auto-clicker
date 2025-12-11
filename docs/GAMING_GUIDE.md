@@ -127,6 +127,31 @@ Always check the game's Terms of Service before using automation tools. The deve
 
 ---
 
+### League of Legends
+
+**Overview**: Fast-paced MOBA where players often want to instantly accept queues or react to visual prompts.
+
+**Image Recognition Watcher**:
+- Point the UI to a PNG template (for example, a cropped screenshot of the "ACCEPT" button).
+- Define the exact screen region (X/Y/Width/Height) to monitor—smaller regions are faster and more accurate.
+- Choose how often to scan (750ms default) and tweak sensitivity:
+  - **Max diff ratio** controls how many pixels can mismatch (lower = stricter).
+  - **Pixel threshold** tunes pixelmatch sensitivity (lower detects smaller differences).
+- Enable **Auto Click** to immediately left-click the detected location (offsets help target the center of the button).
+
+**Common Use Cases**:
+- Auto-accept match queues while alt-tabbed.
+- Notify or click when revive/recall prompts appear (when paired with external notification logic).
+- Detect shop, rune, or inventory popups by supplying their icons.
+
+**Safety Tips**:
+- Keep scan regions as tight as possible (just the button/area of interest).
+- Use conservative sensitivity first to avoid false positives.
+- Monitor the watcher output in the GUI—it reports last detection time and any matching errors.
+- Remember that automation is against LoL's Terms of Service; use strictly at your own risk.
+
+---
+
 ### Minecraft
 
 **Overview**: Sandbox game with mining, farming, and building.

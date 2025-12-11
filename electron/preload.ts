@@ -6,6 +6,7 @@ import {
   ColorMatch,
   ClickerStatus,
 } from './core/types';
+import { LolWatcherConfig, LolWatcherStatus } from './core/leagueHelper';
 
 type ClickerConfig = ClickerSettings;
 
@@ -31,6 +32,12 @@ interface ElectronAPI {
   
   // Smooth mouse movement
   smoothMoveMouse: (x: number, y: number) => Promise<{ success: boolean; message?: string }>;
+
+  // League watcher
+  lolStartWatcher: (config: LolWatcherConfig) => Promise<{ success: boolean; message?: string }>;
+  lolStopWatcher: () => Promise<{ success: boolean; message?: string }>;
+  lolGetWatcherStatus: () => Promise<LolWatcherStatus>;
+  onLolWatcherStatus: (callback: (status: LolWatcherStatus) => void) => void;
 }
 
 // Expose protected methods that allow the renderer process to use
@@ -61,6 +68,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Smooth mouse movement
   smoothMoveMouse: (x: number, y: number) => ipcRenderer.invoke('smooth-move-mouse', x, y),
+
+  // League watcher
+  lolStartWatcher: (config: LolWatcherConfig) => ipcRenderer.invoke('lol-start-watcher', config),
+  lolStopWatcher: () => ipcRenderer.invoke('lol-stop-watcher'),
+  lolGetWatcherStatus: () => ipcRenderer.invoke('lol-get-watcher-status'),
+  onLolWatcherStatus: (callback: (status: LolWatcherStatus) => void) => {
+    ipcRenderer.on('lol-watcher-status', (_event, data) => callback(data));
+  },
 } as ElectronAPI);
 
 declare global {

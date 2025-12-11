@@ -27,6 +27,20 @@ let rs3ShuffleInput: HTMLInputElement;
 let rs3PauseChanceInput: HTMLInputElement;
 let rs3PauseMinInput: HTMLInputElement;
 let rs3PauseMaxInput: HTMLInputElement;
+let lolTemplatePathInput: HTMLInputElement;
+let lolRegionXInput: HTMLInputElement;
+let lolRegionYInput: HTMLInputElement;
+let lolRegionWidthInput: HTMLInputElement;
+let lolRegionHeightInput: HTMLInputElement;
+let lolPollIntervalInput: HTMLInputElement;
+let lolAutoClickInput: HTMLInputElement;
+let lolOffsetXInput: HTMLInputElement;
+let lolOffsetYInput: HTMLInputElement;
+let lolDiffRatioInput: HTMLInputElement;
+let lolPixelThresholdInput: HTMLInputElement;
+let lolStartWatcherBtn: HTMLButtonElement;
+let lolStopWatcherBtn: HTMLButtonElement;
+let lolWatcherStatusText: HTMLElement;
 
 // Recording elements
 let startRecordBtn: HTMLButtonElement;
@@ -43,6 +57,37 @@ interface RS3ActionBarConfig {
   pauseChance: number;
   pauseMin: number;
   pauseMax: number;
+}
+
+interface ScreenRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface LolWatcherConfig {
+  templatePath: string;
+  region: ScreenRegion;
+  pollIntervalMs: number;
+  autoClick: boolean;
+  clickOffset: { x: number; y: number };
+  matchOptions?: {
+    maxDiffRatio?: number;
+    pixelThreshold?: number;
+  };
+}
+
+interface LolWatcherStatus {
+  running: boolean;
+  lastCheck?: number;
+  lastMatch?: {
+    x: number;
+    y: number;
+    score?: number;
+    at: number;
+  };
+  error?: string;
 }
 
 type ClickMode = 'toggle' | 'hold' | 'double' | 'random' | 'burst' | 'rs3-action';
@@ -128,6 +173,7 @@ interface RecordedSequence {
 // Recording state
 let currentRecordedSequence: RecordedSequence | null = null;
 let loadedSequences: RecordedSequence[] = [];
+let lolWatcherRunning = false;
 
 // Initialize
 function init(): void {
@@ -156,6 +202,20 @@ function init(): void {
   rs3PauseChanceInput = document.getElementById('rs3PauseChance') as HTMLInputElement;
   rs3PauseMinInput = document.getElementById('rs3PauseMin') as HTMLInputElement;
   rs3PauseMaxInput = document.getElementById('rs3PauseMax') as HTMLInputElement;
+  lolTemplatePathInput = document.getElementById('lolTemplatePath') as HTMLInputElement;
+  lolRegionXInput = document.getElementById('lolRegionX') as HTMLInputElement;
+  lolRegionYInput = document.getElementById('lolRegionY') as HTMLInputElement;
+  lolRegionWidthInput = document.getElementById('lolRegionWidth') as HTMLInputElement;
+  lolRegionHeightInput = document.getElementById('lolRegionHeight') as HTMLInputElement;
+  lolPollIntervalInput = document.getElementById('lolPollInterval') as HTMLInputElement;
+  lolAutoClickInput = document.getElementById('lolAutoClick') as HTMLInputElement;
+  lolOffsetXInput = document.getElementById('lolClickOffsetX') as HTMLInputElement;
+  lolOffsetYInput = document.getElementById('lolClickOffsetY') as HTMLInputElement;
+  lolDiffRatioInput = document.getElementById('lolDiffRatio') as HTMLInputElement;
+  lolPixelThresholdInput = document.getElementById('lolPixelThreshold') as HTMLInputElement;
+  lolStartWatcherBtn = document.getElementById('lolStartWatcherBtn') as HTMLButtonElement;
+  lolStopWatcherBtn = document.getElementById('lolStopWatcherBtn') as HTMLButtonElement;
+  lolWatcherStatusText = document.getElementById('lolWatcherStatus') as HTMLElement;
   
   // Recording elements
   startRecordBtn = document.getElementById('startRecordBtn') as HTMLButtonElement;
@@ -186,9 +246,23 @@ function init(): void {
     !rs3ShuffleInput ||
     !rs3PauseChanceInput ||
     !rs3PauseMinInput ||
-    !rs3PauseMaxInput
+    !rs3PauseMaxInput ||
+    !lolTemplatePathInput ||
+    !lolRegionXInput ||
+    !lolRegionYInput ||
+    !lolRegionWidthInput ||
+    !lolRegionHeightInput ||
+    !lolPollIntervalInput ||
+    !lolAutoClickInput ||
+    !lolOffsetXInput ||
+    !lolOffsetYInput ||
+    !lolDiffRatioInput ||
+    !lolPixelThresholdInput ||
+    !lolStartWatcherBtn ||
+    !lolStopWatcherBtn ||
+    !lolWatcherStatusText
   ) {
-    console.error('RS3 configuration elements not found');
+    console.error('Required configuration elements not found');
     return;
   }
 
@@ -231,6 +305,8 @@ function init(): void {
   startRecordBtn.addEventListener('click', handleStartRecording);
   stopRecordBtn.addEventListener('click', handleStopRecording);
   loadSequencesBtn.addEventListener('click', handleLoadSequences);
+  lolStartWatcherBtn.addEventListener('click', handleStartLolWatcher);
+  lolStopWatcherBtn.addEventListener('click', handleStopLolWatcher);
 
   setupProfileCardListeners();
 
@@ -244,10 +320,15 @@ function init(): void {
     updateRecordingStatus(data.recording);
   });
 
+  window.electronAPI.onLolWatcherStatus((status) => {
+    updateLolWatcherStatus(status);
+  });
+
   // Initialize UI based on mode
   handleModeChange();
   updateQuickStats();
   loadSequencesFromStorage();
+  initializeLolWatcherStatus();
 }
 
 function selectMode(mode: string): void {
@@ -754,6 +835,139 @@ function updateRecordingStatus(recording: boolean): void {
     startRecordBtn.style.opacity = '1';
     stopRecordBtn.style.opacity = '0.5';
   }
+}
+
+async function initializeLolWatcherStatus(): Promise<void> {
+  try {
+    const status = await window.electronAPI.lolGetWatcherStatus();
+    updateLolWatcherStatus(status);
+  } catch (error) {
+    console.error('Failed to fetch League watcher status:', error);
+    setLolWatcherStatusMessage('Unable to fetch watcher status', true);
+  }
+}
+
+function getLolWatcherConfigFromInputs(): LolWatcherConfig | null {
+  const templatePath = lolTemplatePathInput.value.trim();
+  if (!templatePath) {
+    setLolWatcherStatusMessage('Template path is required', true);
+    return null;
+  }
+
+  const region: ScreenRegion = {
+    x: parseInt(lolRegionXInput.value, 10),
+    y: parseInt(lolRegionYInput.value, 10),
+    width: parseInt(lolRegionWidthInput.value, 10),
+    height: parseInt(lolRegionHeightInput.value, 10),
+  };
+
+  if (Object.values(region).some((value) => Number.isNaN(value))) {
+    setLolWatcherStatusMessage('Region values must be numbers', true);
+    return null;
+  }
+
+  if (region.width <= 0 || region.height <= 0) {
+    setLolWatcherStatusMessage('Region width/height must be positive', true);
+    return null;
+  }
+
+  const pollInterval = Math.max(250, parseInt(lolPollIntervalInput.value, 10) || 1000);
+  const autoClick = lolAutoClickInput.checked;
+  const clickOffset = {
+    x: parseInt(lolOffsetXInput.value, 10) || 0,
+    y: parseInt(lolOffsetYInput.value, 10) || 0,
+  };
+
+  const maxDiffRatio = clampNumber(parseFloat(lolDiffRatioInput.value) || 0.1, 0.01, 0.5);
+  const pixelThreshold = clampNumber(
+    parseFloat(lolPixelThresholdInput.value) || 0.1,
+    0.01,
+    1
+  );
+
+  return {
+    templatePath,
+    region,
+    pollIntervalMs: pollInterval,
+    autoClick,
+    clickOffset,
+    matchOptions: {
+      maxDiffRatio,
+      pixelThreshold,
+    },
+  };
+}
+
+async function handleStartLolWatcher(): Promise<void> {
+  const config = getLolWatcherConfigFromInputs();
+  if (!config) {
+    return;
+  }
+
+  try {
+    const result = await window.electronAPI.lolStartWatcher(config);
+    if (!result.success) {
+      setLolWatcherStatusMessage(result.message || 'Failed to start watcher', true);
+      return;
+    }
+    setLolWatcherStatusMessage('Watcher running...');
+    updateLolWatcherControls(true);
+  } catch (error) {
+    console.error('Error starting League watcher:', error);
+    setLolWatcherStatusMessage('Failed to start watcher', true);
+  }
+}
+
+async function handleStopLolWatcher(): Promise<void> {
+  try {
+    const result = await window.electronAPI.lolStopWatcher();
+    if (!result.success) {
+      setLolWatcherStatusMessage(result.message || 'Failed to stop watcher', true);
+      return;
+    }
+    setLolWatcherStatusMessage('Watcher stopped');
+    updateLolWatcherControls(false);
+  } catch (error) {
+    console.error('Error stopping League watcher:', error);
+    setLolWatcherStatusMessage('Failed to stop watcher', true);
+  }
+}
+
+function updateLolWatcherStatus(status: LolWatcherStatus): void {
+  lolWatcherRunning = status.running;
+  updateLolWatcherControls(status.running);
+
+  const parts: string[] = [];
+  if (status.running) {
+    parts.push('Watching for template...');
+  } else {
+    parts.push('Watcher idle');
+  }
+
+  if (status.lastMatch) {
+    const date = new Date(status.lastMatch.at);
+    parts.push(
+      `Last match at (${status.lastMatch.x}, ${status.lastMatch.y}) • ${date.toLocaleTimeString()}`
+    );
+  }
+
+  if (status.error) {
+    parts.push(`Error: ${status.error}`);
+  }
+
+  setLolWatcherStatusMessage(parts.join(' • '), Boolean(status.error));
+}
+
+function updateLolWatcherControls(running: boolean): void {
+  lolStartWatcherBtn.disabled = running;
+  lolStopWatcherBtn.disabled = !running;
+  lolStartWatcherBtn.style.opacity = running ? '0.5' : '1';
+  lolStopWatcherBtn.style.opacity = running ? '1' : '0.5';
+}
+
+function setLolWatcherStatusMessage(message: string, isError = false): void {
+  lolWatcherStatusText.textContent = message;
+  lolWatcherStatusText.style.color = isError ? '#f87171' : '#64748b';
 }
 
 // Initialize app when DOM is loaded

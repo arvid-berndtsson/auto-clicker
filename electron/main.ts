@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { ClickerController } from './core/clickerController';
 import { RecordingController } from './core/recordingController';
 import { SequenceStore } from './core/sequenceStore';
-import { captureRegion, findColorInRegion } from './core/vision';
+import { captureRegion, findColorInRegion, findImageInRegion, ImageMatchOptions } from './core/vision';
 import { smoothMoveMouse } from './core/mouseMovement';
 import {
   ClickerSettings,
@@ -13,10 +13,12 @@ import {
   ScreenRegion,
   ColorMatch,
 } from './core/types';
+import { LeagueHelper, LolWatcherConfig, LolWatcherStatus } from './core/leagueHelper';
 
 let mainWindow: BrowserWindow | null = null;
 let clickerController: ClickerController | null = null;
 let recordingController: RecordingController | null = null;
+let leagueHelper: LeagueHelper | null = null;
 
 function getMainWindow(): BrowserWindow | null {
   return mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
@@ -28,6 +30,10 @@ function sendClickerStatus(status: ClickerStatus): void {
 
 function sendRecordingStatus(recording: boolean): void {
   getMainWindow()?.webContents.send('recording-status', { recording });
+}
+
+function sendLolWatcherStatus(status: LolWatcherStatus): void {
+  getMainWindow()?.webContents.send('lol-watcher-status', status);
 }
 
 function createWindow(): void {
@@ -70,6 +76,8 @@ async function setupControllers(): Promise<void> {
   const store = new SequenceStore(userDataPath);
   clickerController = new ClickerController(sendClickerStatus);
   recordingController = new RecordingController(store, sendRecordingStatus);
+  leagueHelper = new LeagueHelper(sendLolWatcherStatus);
+  sendLolWatcherStatus(leagueHelper.getStatus());
 }
 
 function ensureClickerController(): ClickerController {
@@ -84,6 +92,13 @@ function ensureRecordingController(): RecordingController {
     throw new Error('Recording controller is not initialized');
   }
   return recordingController;
+}
+
+function ensureLeagueHelper(): LeagueHelper {
+  if (!leagueHelper) {
+    throw new Error('League helper is not initialized');
+  }
+  return leagueHelper;
 }
 
 function registerIpcHandlers(): void {
@@ -184,11 +199,44 @@ function registerIpcHandlers(): void {
     }
   });
 
-  ipcMain.handle('find-image', async () => ({
-    success: true,
-    found: false,
-    message: 'Image recognition not yet fully implemented',
-  }));
+  ipcMain.handle(
+    'find-image',
+    async (_event, region: ScreenRegion, templatePath: string, options?: ImageMatchOptions) => {
+      try {
+        const result = await findImageInRegion(region, templatePath, options);
+        return {
+          success: true,
+          ...result,
+          message: result.found ? 'Image found' : 'Image not found',
+        };
+      } catch (error) {
+        console.error('Error finding image:', error);
+        return { success: false, found: false, message: (error as Error).message };
+      }
+    }
+  );
+
+  ipcMain.handle('lol-start-watcher', async (_event, config: LolWatcherConfig) => {
+    try {
+      ensureLeagueHelper().start(config);
+      return { success: true, message: 'League watcher started' };
+    } catch (error) {
+      console.error('Error starting League watcher:', error);
+      return { success: false, message: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle('lol-stop-watcher', async () => {
+    try {
+      ensureLeagueHelper().stop();
+      return { success: true, message: 'League watcher stopped' };
+    } catch (error) {
+      console.error('Error stopping League watcher:', error);
+      return { success: false, message: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle('lol-get-watcher-status', async () => ensureLeagueHelper().getStatus());
 
   ipcMain.handle('smooth-move-mouse', async (_event, x: number, y: number) => {
     try {
@@ -216,6 +264,7 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   clickerController?.stop();
   recordingController?.cancelPlayback();
+  leagueHelper?.stop();
   if (process.platform !== 'darwin') {
     app.quit();
   }

@@ -429,6 +429,54 @@
     display: none !important;
   }
 
+  .league-support {
+    border-color: rgba(59, 130, 246, 0.35);
+  }
+
+  .league-region-grid {
+    @apply grid gap-3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .league-region-grid input {
+    @apply w-full;
+  }
+
+  .league-autoclick-row {
+    @apply flex flex-col gap-3 w-full;
+  }
+
+  .league-autoclick-row .delay-control {
+    @apply w-full;
+  }
+
+  .league-autoclick-row .delay-control .game-input {
+    @apply flex-1;
+  }
+
+  .league-sensitivity-grid {
+    @apply grid gap-4 w-full;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .league-sensitivity-grid .game-input {
+    @apply w-full;
+  }
+
+  .league-actions {
+    @apply flex gap-3 mt-4;
+  }
+
+  .league-actions .game-btn {
+    @apply flex-1;
+    border-color: #fbbf24;
+    color: #fbbf24;
+  }
+
+  .league-actions .game-btn:hover {
+    background: rgba(251, 191, 36, 0.15);
+  }
+
   /* Hotkey Items */
   .hotkey-item {
     @apply flex items-center justify-between gap-4 py-3;

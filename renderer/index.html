@@ -329,6 +329,116 @@
             </div>
           </div>
 
+          <!-- League of Legends Support -->
+          <div class="settings-group league-support">
+            <div class="group-heading">
+              <h3 class="group-title">LEAGUE OF LEGENDS</h3>
+              <p class="group-note">
+                Use image recognition to auto-click prompts like the queue Accept button. Provide a template
+                screenshot (.png) and screen region to scan.
+              </p>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name" for="lolTemplatePath">Template Image Path</label>
+              <input
+                type="text"
+                id="lolTemplatePath"
+                class="game-input full-width"
+                placeholder="/path/to/accept.png"
+              />
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Scan Region (px)</label>
+              <div class="league-region-grid">
+                <input type="number" id="lolRegionX" class="game-input" placeholder="X" value="0" />
+                <input type="number" id="lolRegionY" class="game-input" placeholder="Y" value="0" />
+                <input type="number" id="lolRegionWidth" class="game-input" placeholder="Width" value="400" />
+                <input type="number" id="lolRegionHeight" class="game-input" placeholder="Height" value="400" />
+              </div>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name" for="lolPollInterval">Poll Interval (ms)</label>
+              <input
+                type="number"
+                id="lolPollInterval"
+                class="game-input full-width"
+                value="750"
+                min="250"
+              />
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Auto Click</label>
+              <div class="league-autoclick-row">
+                <label class="toggle-row">
+                  <input type="checkbox" id="lolAutoClick" class="toggle-input" checked />
+                  <span class="field-hint">Click when the template is found</span>
+                </label>
+                <div class="delay-control">
+                  <input
+                    type="number"
+                    id="lolClickOffsetX"
+                    class="game-input"
+                    placeholder="Offset X"
+                    value="30"
+                  />
+                  <span class="delay-sep">/</span>
+                  <input
+                    type="number"
+                    id="lolClickOffsetY"
+                    class="game-input"
+                    placeholder="Offset Y"
+                    value="15"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Match Sensitivity</label>
+              <div class="league-sensitivity-grid">
+                <div>
+                  <label class="field-hint" for="lolDiffRatio">Max diff ratio (0.01-0.5)</label>
+                  <input
+                    type="number"
+                    id="lolDiffRatio"
+                    class="game-input"
+                    value="0.12"
+                    step="0.01"
+                    min="0.01"
+                    max="0.5"
+                  />
+                </div>
+                <div>
+                  <label class="field-hint" for="lolPixelThreshold">Pixel threshold (0.01-1)</label>
+                  <input
+                    type="number"
+                    id="lolPixelThreshold"
+                    class="game-input"
+                    value="0.15"
+                    step="0.01"
+                    min="0.01"
+                    max="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="league-actions">
+              <button id="lolStartWatcherBtn" class="game-btn">
+                <span class="btn-text">START WATCH</span>
+              </button>
+              <button id="lolStopWatcherBtn" class="game-btn" disabled>
+                <span class="btn-text">STOP</span>
+              </button>
+            </div>
+
+            <p class="info-text" id="lolWatcherStatus">Watcher idle.</p>
+          </div>
+
           <!-- Hotkeys -->
           <div class="settings-group">
             <h3 class="group-title">HOTKEYS</h3>

@@ -191,9 +191,17 @@
     text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
   }
 
+  .group-heading {
+    @apply mb-4;
+  }
+
+  .group-note {
+    @apply text-xs text-slate-400 leading-relaxed;
+  }
+
   /* Mode Grid */
   .mode-grid {
-    @apply grid grid-cols-5 gap-2;
+    @apply grid grid-cols-2 md:grid-cols-3 gap-2;
   }
 
   .mode-btn {
@@ -222,6 +230,21 @@
     color: #3b82f6;
   }
 
+  .mode-subtext {
+    @apply block text-[10px] uppercase tracking-widest mt-1;
+    color: #64748b;
+  }
+
+  .rs3-mode-btn {
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+
+  .rs3-mode-btn.active {
+    border-color: #a855f7;
+    background: rgba(168, 85, 247, 0.15);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  }
+
   .hidden-select {
     display: none;
   }
@@ -234,6 +257,10 @@
 
   .setting-item:last-child {
     @apply border-0;
+  }
+
+  .setting-item.vertical {
+    @apply flex-col items-start;
   }
 
   .setting-name {
@@ -285,8 +312,121 @@
     @apply w-32;
   }
 
+  .game-textarea {
+    @apply w-full rounded-lg px-4 py-3 text-sm font-medium;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #e2e8f0;
+    min-height: 72px;
+  }
+
+  .game-textarea:focus {
+    @apply outline-none;
+    border-color: #a855f7;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  }
+
   #burstCountRow.hidden {
     display: none;
+  }
+
+  .field-hint {
+    @apply text-[11px] text-slate-400 mt-1;
+    line-height: 1.4;
+  }
+
+  .toggle-row {
+    @apply flex items-center gap-3;
+  }
+
+  .toggle-input {
+    @apply w-5 h-5 rounded;
+  }
+
+  .rs3-config.hidden {
+    display: none;
+  }
+
+  .rs3-config {
+    border-color: rgba(168, 85, 247, 0.35);
+  }
+
+  .rs3-config .group-title {
+    color: #c084fc;
+    text-shadow: 0 0 10px rgba(192, 132, 252, 0.6);
+  }
+
+  .micro-break-grid {
+    @apply flex flex-col gap-3 mt-3 w-full;
+  }
+
+  .micro-break-grid .game-input {
+    @apply w-24;
+  }
+
+  .micro-break-grid .delay-control .game-input {
+    @apply w-full;
+  }
+
+  /* RS3 Profile Cards */
+  .profile-grid {
+    @apply grid gap-3;
+  }
+
+  @media (min-width: 768px) {
+    .profile-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .profile-card {
+    @apply flex flex-col gap-3 p-4 rounded-xl border;
+    background: rgba(15, 23, 42, 0.5);
+    border-color: rgba(148, 163, 184, 0.2);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .profile-card:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .profile-header {
+    @apply flex items-center justify-between;
+  }
+
+  .profile-label {
+    @apply text-[11px] font-bold tracking-widest uppercase px-2 py-1 rounded;
+    background: rgba(59, 130, 246, 0.2);
+    color: #38bdf8;
+  }
+
+  .profile-name {
+    @apply text-base font-semibold text-right;
+    color: #e0e7ff;
+  }
+
+  .profile-summary {
+    @apply text-xs text-slate-400 leading-relaxed;
+  }
+
+  .profile-meta {
+    @apply text-xs text-slate-300 space-y-1 list-disc pl-4;
+  }
+
+  .profile-apply-btn {
+    @apply mt-auto px-3 py-2 rounded-lg text-xs font-bold tracking-widest uppercase;
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    color: #c084fc;
+    transition: all 0.2s ease;
+  }
+
+  .profile-apply-btn:hover {
+    background: rgba(168, 85, 247, 0.15);
+  }
+
+  .hidden {
+    display: none !important;
   }
 
   /* Hotkey Items */

@@ -1,5 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+interface RS3ActionBarConfig {
+  abilityKeys: string[];
+  minAbilityDelay: number;
+  maxAbilityDelay: number;
+  shuffleRotation: boolean;
+  pauseChance: number;
+  pauseMin: number;
+  pauseMax: number;
+}
+
 interface ClickerConfig {
   mode: string;
   minDelay: number;
@@ -8,6 +18,7 @@ interface ClickerConfig {
   clickKey: string;
   stopKey: string;
   button: string;
+  rs3Config?: RS3ActionBarConfig;
 }
 
 interface RecordedAction {

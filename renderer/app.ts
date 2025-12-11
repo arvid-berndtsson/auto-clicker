@@ -6,6 +6,7 @@ let statusText: HTMLElement;
 let modeSelect: HTMLSelectElement;
 let modeSelector: HTMLElement;
 let burstCountRow: HTMLElement;
+let rs3ConfigPanel: HTMLElement;
 
 // Quick stats elements
 let currentModeText: HTMLElement;
@@ -19,6 +20,13 @@ let burstCountInput: HTMLInputElement;
 let clickKeyInput: HTMLInputElement;
 let stopKeyInput: HTMLInputElement;
 let buttonSelect: HTMLSelectElement;
+let rs3AbilityKeysInput: HTMLTextAreaElement;
+let rs3MinAbilityDelayInput: HTMLInputElement;
+let rs3MaxAbilityDelayInput: HTMLInputElement;
+let rs3ShuffleInput: HTMLInputElement;
+let rs3PauseChanceInput: HTMLInputElement;
+let rs3PauseMinInput: HTMLInputElement;
+let rs3PauseMaxInput: HTMLInputElement;
 
 // Recording elements
 let startRecordBtn: HTMLButtonElement;
@@ -26,6 +34,16 @@ let stopRecordBtn: HTMLButtonElement;
 let sequenceList: HTMLElement;
 let loadSequencesBtn: HTMLButtonElement;
 let noSequencesMsg: HTMLElement;
+
+interface RS3ActionBarConfig {
+  abilityKeys: string[];
+  minAbilityDelay: number;
+  maxAbilityDelay: number;
+  shuffleRotation: boolean;
+  pauseChance: number;
+  pauseMin: number;
+  pauseMax: number;
+}
 
 interface ClickerSettings {
   mode: string;
@@ -35,6 +53,57 @@ interface ClickerSettings {
   clickKey: string;
   stopKey: string;
   button: string;
+  rs3Config?: RS3ActionBarConfig;
+}
+
+const DEFAULT_RS3_CONFIG: RS3ActionBarConfig = {
+  abilityKeys: ['1', '2', '3', '4', '5', '6'],
+  minAbilityDelay: 800,
+  maxAbilityDelay: 1400,
+  shuffleRotation: true,
+  pauseChance: 15,
+  pauseMin: 1500,
+  pauseMax: 3200,
+};
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function parseAbilityKeys(value: string): string[] {
+  return value
+    .split(/[\s,]+/)
+    .map((key) => key.trim())
+    .filter(Boolean);
+}
+
+function getRs3ConfigFromInputs(): RS3ActionBarConfig {
+  if (
+    !rs3AbilityKeysInput ||
+    !rs3MinAbilityDelayInput ||
+    !rs3MaxAbilityDelayInput ||
+    !rs3ShuffleInput ||
+    !rs3PauseChanceInput ||
+    !rs3PauseMinInput ||
+    !rs3PauseMaxInput
+  ) {
+    return DEFAULT_RS3_CONFIG;
+  }
+
+  const parsedAbilityKeys = parseAbilityKeys(rs3AbilityKeysInput.value);
+  const minDelay = parseInt(rs3MinAbilityDelayInput.value);
+  const maxDelay = parseInt(rs3MaxAbilityDelayInput.value);
+  const pauseChance = clampNumber(parseInt(rs3PauseChanceInput.value) || DEFAULT_RS3_CONFIG.pauseChance, 0, 100);
+
+  return {
+    abilityKeys: parsedAbilityKeys.length ? parsedAbilityKeys : DEFAULT_RS3_CONFIG.abilityKeys,
+    minAbilityDelay: isNaN(minDelay) ? DEFAULT_RS3_CONFIG.minAbilityDelay : minDelay,
+    maxAbilityDelay: isNaN(maxDelay) ? DEFAULT_RS3_CONFIG.maxAbilityDelay : maxDelay,
+    shuffleRotation: rs3ShuffleInput.checked,
+    pauseChance,
+    pauseMin: parseInt(rs3PauseMinInput.value) || DEFAULT_RS3_CONFIG.pauseMin,
+    pauseMax: parseInt(rs3PauseMaxInput.value) || DEFAULT_RS3_CONFIG.pauseMax,
+  };
 }
 
 interface RecordedAction {
@@ -75,6 +144,14 @@ function init(): void {
   clickKeyInput = document.getElementById('clickKey') as HTMLInputElement;
   stopKeyInput = document.getElementById('stopKey') as HTMLInputElement;
   buttonSelect = document.getElementById('button') as HTMLSelectElement;
+  rs3ConfigPanel = document.getElementById('rs3ConfigPanel') as HTMLElement;
+  rs3AbilityKeysInput = document.getElementById('rs3AbilityKeys') as HTMLTextAreaElement;
+  rs3MinAbilityDelayInput = document.getElementById('rs3MinAbilityDelay') as HTMLInputElement;
+  rs3MaxAbilityDelayInput = document.getElementById('rs3MaxAbilityDelay') as HTMLInputElement;
+  rs3ShuffleInput = document.getElementById('rs3ShuffleRotation') as HTMLInputElement;
+  rs3PauseChanceInput = document.getElementById('rs3PauseChance') as HTMLInputElement;
+  rs3PauseMinInput = document.getElementById('rs3PauseMin') as HTMLInputElement;
+  rs3PauseMaxInput = document.getElementById('rs3PauseMax') as HTMLInputElement;
   
   // Recording elements
   startRecordBtn = document.getElementById('startRecordBtn') as HTMLButtonElement;
@@ -94,6 +171,20 @@ function init(): void {
     !burstCountRow
   ) {
     console.error('Required DOM elements not found');
+    return;
+  }
+
+  if (
+    !rs3ConfigPanel ||
+    !rs3AbilityKeysInput ||
+    !rs3MinAbilityDelayInput ||
+    !rs3MaxAbilityDelayInput ||
+    !rs3ShuffleInput ||
+    !rs3PauseChanceInput ||
+    !rs3PauseMinInput ||
+    !rs3PauseMaxInput
+  ) {
+    console.error('RS3 configuration elements not found');
     return;
   }
 
@@ -136,6 +227,8 @@ function init(): void {
   startRecordBtn.addEventListener('click', handleStartRecording);
   stopRecordBtn.addEventListener('click', handleStopRecording);
   loadSequencesBtn.addEventListener('click', handleLoadSequences);
+
+  setupProfileCardListeners();
 
   // Listen for status updates from main process
   window.electronAPI.onClickerStatus((data) => {
@@ -187,9 +280,14 @@ function updateQuickStats(): void {
   currentButtonText.textContent = buttonSelect.value.toUpperCase();
 
   // Update delay
-  const min = minDelayInput.value;
-  const max = maxDelayInput.value;
-  currentDelayText.textContent = `${min}-${max}ms`;
+  if (modeSelect.value === 'rs3-action') {
+    const rs3Config = getRs3ConfigFromInputs();
+    currentDelayText.textContent = `${rs3Config.minAbilityDelay}-${rs3Config.maxAbilityDelay}ms`;
+  } else {
+    const min = minDelayInput.value;
+    const max = maxDelayInput.value;
+    currentDelayText.textContent = `${min}-${max}ms`;
+  }
 }
 
 function handleModeChange(): void {
@@ -201,6 +299,102 @@ function handleModeChange(): void {
   } else {
     burstCountRow.classList.add('hidden');
   }
+
+  if (rs3ConfigPanel) {
+    if (mode === 'rs3-action') {
+      rs3ConfigPanel.classList.remove('hidden');
+      rs3ConfigPanel.setAttribute('aria-hidden', 'false');
+    } else {
+      rs3ConfigPanel.classList.add('hidden');
+      rs3ConfigPanel.setAttribute('aria-hidden', 'true');
+    }
+  }
+}
+
+function setupProfileCardListeners(): void {
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.profile-apply-btn');
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const card = button.closest<HTMLElement>('[data-profile]');
+      if (!card) {
+        return;
+      }
+      applyProfileCard(card);
+    });
+  });
+}
+
+function applyProfileCard(card: HTMLElement): void {
+  const profileName = card.getAttribute('data-profile') || 'Profile';
+  const mode = card.getAttribute('data-mode');
+  const minDelay = card.getAttribute('data-min-delay');
+  const maxDelay = card.getAttribute('data-max-delay');
+  const button = card.getAttribute('data-button');
+  const clickKey = card.getAttribute('data-click-key');
+  const stopKey = card.getAttribute('data-stop-key');
+  const rs3AbilityKeys = card.getAttribute('data-rs3-ability-keys');
+  const rs3MinAbilityDelay = card.getAttribute('data-rs3-min-ability-delay');
+  const rs3MaxAbilityDelay = card.getAttribute('data-rs3-max-ability-delay');
+  const rs3Shuffle = card.getAttribute('data-rs3-shuffle');
+  const rs3PauseChance = card.getAttribute('data-rs3-pause-chance');
+  const rs3PauseMin = card.getAttribute('data-rs3-pause-min');
+  const rs3PauseMax = card.getAttribute('data-rs3-pause-max');
+
+  if (mode) {
+    selectMode(mode);
+  }
+
+  if (minDelay) {
+    minDelayInput.value = minDelay;
+  }
+
+  if (maxDelay) {
+    maxDelayInput.value = maxDelay;
+  }
+
+  if (button) {
+    buttonSelect.value = button;
+  }
+
+  if (clickKey) {
+    clickKeyInput.value = clickKey.toUpperCase();
+  }
+
+  if (stopKey) {
+    stopKeyInput.value = stopKey.toUpperCase();
+  }
+
+  if (rs3AbilityKeys && rs3AbilityKeysInput) {
+    rs3AbilityKeysInput.value = rs3AbilityKeys;
+  }
+
+  if (rs3MinAbilityDelay && rs3MinAbilityDelayInput) {
+    rs3MinAbilityDelayInput.value = rs3MinAbilityDelay;
+  }
+
+  if (rs3MaxAbilityDelay && rs3MaxAbilityDelayInput) {
+    rs3MaxAbilityDelayInput.value = rs3MaxAbilityDelay;
+  }
+
+  if (rs3Shuffle && rs3ShuffleInput) {
+    rs3ShuffleInput.checked = rs3Shuffle === 'true';
+  }
+
+  if (rs3PauseChance && rs3PauseChanceInput) {
+    rs3PauseChanceInput.value = rs3PauseChance;
+  }
+
+  if (rs3PauseMin && rs3PauseMinInput) {
+    rs3PauseMinInput.value = rs3PauseMin;
+  }
+
+  if (rs3PauseMax && rs3PauseMaxInput) {
+    rs3PauseMaxInput.value = rs3PauseMax;
+  }
+
+  validateDelayInputs();
+  updateQuickStats();
+  showStatusMessage(`${profileName} preset applied`, false);
 }
 
 // Validate delay inputs in real-time
@@ -247,11 +441,39 @@ function validateSettings(): boolean {
     return false;
   }
 
+  if (modeSelect.value === 'rs3-action') {
+    const rs3Config = getRs3ConfigFromInputs();
+    if (!rs3Config.abilityKeys.length) {
+      showStatusMessage('Error: Ability rotation cannot be empty', true);
+      return false;
+    }
+
+    if (
+      isNaN(rs3Config.minAbilityDelay) ||
+      isNaN(rs3Config.maxAbilityDelay) ||
+      rs3Config.minAbilityDelay <= 0 ||
+      rs3Config.maxAbilityDelay <= 0
+    ) {
+      showStatusMessage('Error: Ability delays must be positive numbers', true);
+      return false;
+    }
+
+    if (rs3Config.minAbilityDelay > rs3Config.maxAbilityDelay) {
+      showStatusMessage('Error: Ability min delay cannot exceed max delay', true);
+      return false;
+    }
+
+    if (rs3Config.pauseMin > rs3Config.pauseMax) {
+      showStatusMessage('Error: Pause min cannot exceed max', true);
+      return false;
+    }
+  }
+
   return true;
 }
 
 function getSettings(): ClickerSettings {
-  return {
+  const baseSettings: ClickerSettings = {
     mode: modeSelect.value,
     minDelay: parseInt(minDelayInput.value),
     maxDelay: parseInt(maxDelayInput.value),
@@ -260,6 +482,12 @@ function getSettings(): ClickerSettings {
     stopKey: stopKeyInput.value.toLowerCase(),
     button: buttonSelect.value,
   };
+
+  if (modeSelect.value === 'rs3-action') {
+    baseSettings.rs3Config = getRs3ConfigFromInputs();
+  }
+
+  return baseSettings;
 }
 
 async function handleStart(): Promise<void> {

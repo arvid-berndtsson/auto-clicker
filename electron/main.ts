@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, globalShortcut, IpcMainInvokeEvent } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { mouse, Button, Point, screen as nutScreen, Region } from '@nut-tree-fork/nut-js';
+import { mouse, Button, Point, screen as nutScreen, Region, keyboard } from '@nut-tree-fork/nut-js';
 
 // Constants
 const DOUBLE_CLICK_DELAY_MS = 10;
@@ -18,6 +18,25 @@ const TWITCH_PROBABILITY = 0.7;
 const TWITCH_CHECK_THRESHOLD = 0.9;
 const TWITCH_MAGNITUDE = 6;
 const BASE_MOVEMENT_DELAY_MS = 5;
+const DEFAULT_RS3_CONFIG: RS3ActionBarConfig = {
+  abilityKeys: ['1', '2', '3', '4', '5', '6'],
+  minAbilityDelay: 800,
+  maxAbilityDelay: 1400,
+  shuffleRotation: true,
+  pauseChance: 15,
+  pauseMin: 1500,
+  pauseMax: 3200,
+};
+
+interface RS3ActionBarConfig {
+  abilityKeys: string[];
+  minAbilityDelay: number;
+  maxAbilityDelay: number;
+  shuffleRotation: boolean;
+  pauseChance: number;
+  pauseMin: number;
+  pauseMax: number;
+}
 
 interface ClickerSettings {
   minDelay: number;
@@ -27,6 +46,7 @@ interface ClickerSettings {
   stopKey: string;
   button: 'left' | 'right' | 'middle';
   mode?: string;
+  rs3Config?: RS3ActionBarConfig;
 }
 
 interface RecordedAction {
@@ -69,7 +89,9 @@ let settings: ClickerSettings = {
   clickKey: 'h',
   stopKey: 'esc',
   button: 'left',
+  rs3Config: undefined,
 };
+let rs3LoopController: { cancelled: boolean } | null = null;
 
 // Recording state
 let isRecording = false;
@@ -141,6 +163,39 @@ function getRandomDelay(): number {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRandomInRange(min: number, max: number): number {
+  if (max <= min) {
+    return min;
+  }
+  return Math.random() * (max - min) + min;
+}
+
+function shuffleArray<T>(items: T[]): T[] {
+  const clone = [...items];
+  for (let i = clone.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [clone[i], clone[j]] = [clone[j], clone[i]];
+  }
+  return clone;
+}
+
+function resolveRs3Config(
+  incoming?: RS3ActionBarConfig,
+  fallback?: RS3ActionBarConfig
+): RS3ActionBarConfig {
+  const source = incoming ?? fallback ?? DEFAULT_RS3_CONFIG;
+  const abilityKeys =
+    source.abilityKeys && source.abilityKeys.length > 0
+      ? source.abilityKeys
+      : DEFAULT_RS3_CONFIG.abilityKeys;
+
+  return {
+    ...DEFAULT_RS3_CONFIG,
+    ...source,
+    abilityKeys,
+  };
 }
 
 async function performClick(): Promise<void> {
@@ -268,6 +323,60 @@ function runBurstMode(): void {
       }
     }
   });
+}
+
+function runRs3ActionMode(): void {
+  const rs3Config = mergeRs3Config(settings.rs3Config, settings.rs3Config);
+  let rotationActive = false;
+
+  if (rs3LoopController) {
+    rs3LoopController.cancelled = true;
+  }
+  const controller = { cancelled: false };
+  rs3LoopController = controller;
+
+  globalShortcut.register(settings.clickKey, () => {
+    rotationActive = !rotationActive;
+    console.log('RS3 action mode:', rotationActive ? 'ON' : 'OFF');
+  });
+
+  const abilityLoop = async () => {
+    try {
+      while (clickingActive && !controller.cancelled) {
+        if (!rotationActive) {
+          await sleep(100);
+          continue;
+        }
+
+        const abilities = rs3Config.shuffleRotation
+          ? shuffleArray(rs3Config.abilityKeys)
+          : rs3Config.abilityKeys;
+
+        for (const ability of abilities) {
+          if (!rotationActive || controller.cancelled || !clickingActive) {
+            break;
+          }
+
+          await keyboard.type(ability);
+          await sleep(getRandomInRange(rs3Config.minAbilityDelay, rs3Config.maxAbilityDelay));
+        }
+
+        if (
+          rs3Config.pauseChance > 0 &&
+          Math.random() * 100 < rs3Config.pauseChance &&
+          !controller.cancelled
+        ) {
+          const pauseDuration = getRandomInRange(rs3Config.pauseMin, rs3Config.pauseMax);
+          console.log(`RS3 micro break for ${pauseDuration.toFixed(0)}ms`);
+          await sleep(pauseDuration);
+        }
+      }
+    } catch (error) {
+      console.error('RS3 action loop error:', error);
+    }
+  };
+
+  void abilityLoop();
 }
 
 // Smooth mouse movement with human-like behavior

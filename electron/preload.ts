@@ -1,60 +1,19 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import {
+  ClickerSettings,
+  RecordedSequence,
+  ScreenRegion,
+  ColorMatch,
+  ClickerStatus,
+} from './core/types';
 
-interface RS3ActionBarConfig {
-  abilityKeys: string[];
-  minAbilityDelay: number;
-  maxAbilityDelay: number;
-  shuffleRotation: boolean;
-  pauseChance: number;
-  pauseMin: number;
-  pauseMax: number;
-}
-
-interface ClickerConfig {
-  mode: string;
-  minDelay: number;
-  maxDelay: number;
-  burstCount: number;
-  clickKey: string;
-  stopKey: string;
-  button: string;
-  rs3Config?: RS3ActionBarConfig;
-}
-
-interface RecordedAction {
-  type: 'click' | 'move';
-  x: number;
-  y: number;
-  button?: string;
-  timestamp: number;
-  delay?: number;
-}
-
-interface RecordedSequence {
-  name: string;
-  actions: RecordedAction[];
-  created: number;
-}
-
-interface ScreenRegion {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface ColorMatch {
-  r: number;
-  g: number;
-  b: number;
-  tolerance: number;
-}
+type ClickerConfig = ClickerSettings;
 
 interface ElectronAPI {
   startClicker: (config: ClickerConfig) => Promise<{ success: boolean; message?: string }>;
   stopClicker: () => Promise<{ success: boolean; message?: string }>;
-  getStatus: () => Promise<{ running: boolean; mode: string; settings: ClickerConfig }>;
-  onClickerStatus: (callback: (data: { running: boolean }) => void) => void;
+  getStatus: () => Promise<ClickerStatus>;
+  onClickerStatus: (callback: (data: ClickerStatus) => void) => void;
   
   // Recording features
   startRecording: () => Promise<{ success: boolean; message?: string }>;
@@ -80,7 +39,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startClicker: (config: ClickerConfig) => ipcRenderer.invoke('start-clicker', config),
   stopClicker: () => ipcRenderer.invoke('stop-clicker'),
   getStatus: () => ipcRenderer.invoke('get-status'),
-  onClickerStatus: (callback: (data: { running: boolean }) => void) => {
+  onClickerStatus: (callback: (data: ClickerStatus) => void) => {
     ipcRenderer.on('clicker-status', (event, data) => callback(data));
   },
   

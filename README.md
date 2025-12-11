@@ -19,6 +19,12 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 - **Color Recognition**: Detect specific colors in screen regions for conditional automation.
 - **Image Recognition**: Basic support for finding images on screen (extensible for advanced use cases).
 - **Sequence Management**: Save, load, play, and delete recorded sequences with an intuitive UI.
+- **RS3 Aware Mode**: Dedicated RuneScape 3 presets plus an action-bar rotation engine that simulates ability presses, micro breaks, and configurable pause behavior to better complement in-game Revolution.
+
+### RuneScape 3 Enhancements
+- Built-in RS3 preset cards for Gathering, Combat (Revolution Assist), and Skilling tweak both click timing and key bindings with a single click.
+- A specialized **RS3 Action Bar** mode lets you define ability rotations, shuffle order per loop, and inject micro breaks to mimic real players.
+- Per-profile ability lists, pause probabilities, and custom delay ranges make it safer to pair the clicker with AFK-friendly skills.
 
 ## Repository Layout
 

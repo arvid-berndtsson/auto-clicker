@@ -45,14 +45,18 @@ interface RS3ActionBarConfig {
   pauseMax: number;
 }
 
+type ClickMode = 'toggle' | 'hold' | 'double' | 'random' | 'burst' | 'rs3-action';
+
+type ClickButton = 'left' | 'right' | 'middle';
+
 interface ClickerSettings {
-  mode: string;
+  mode: ClickMode;
   minDelay: number;
   maxDelay: number;
   burstCount: number;
   clickKey: string;
   stopKey: string;
-  button: string;
+  button: ClickButton;
   rs3Config?: RS3ActionBarConfig;
 }
 
@@ -473,14 +477,17 @@ function validateSettings(): boolean {
 }
 
 function getSettings(): ClickerSettings {
+  const selectedMode = modeSelect.value as ClickMode;
+  const selectedButton = (buttonSelect.value as ClickButton) || 'left';
+
   const baseSettings: ClickerSettings = {
-    mode: modeSelect.value,
+    mode: selectedMode,
     minDelay: parseInt(minDelayInput.value),
     maxDelay: parseInt(maxDelayInput.value),
     burstCount: parseInt(burstCountInput.value),
     clickKey: clickKeyInput.value.toLowerCase(),
     stopKey: stopKeyInput.value.toLowerCase(),
-    button: buttonSelect.value,
+    button: selectedButton,
   };
 
   if (modeSelect.value === 'rs3-action') {

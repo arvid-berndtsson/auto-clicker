@@ -119,6 +119,12 @@ Always check the game's Terms of Service before using automation tools. The deve
 - Combine with legitimate gameplay
 - Take frequent breaks
 
+**New RS3 Tools**:
+- **RS3 Preset Cards**: Use the Gathering, Revolution Assist, or Skilling presets in the GUI to instantly load conservative delay ranges, hotkeys, and mouse buttons tuned for each activity.
+- **RS3 Action Mode**: Select the `RS3 ACTION` click mode to unlock ability rotations. Configure comma-separated ability keys, shuffle behavior, and micro-break odds in the RS3 Action Bar panel.
+- **Micro Breaks**: Adjust pause probability/durations to mimic human hesitation between rotations—higher pauses are safer for combat scenarios.
+- **Complement Revolution**: Keep in-game Revolution running and let the action mode lightly tap abilities to avoid idle timers rather than spamming full rotations.
+
 ---
 
 ### Minecraft

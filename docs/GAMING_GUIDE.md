@@ -119,6 +119,37 @@ Always check the game's Terms of Service before using automation tools. The deve
 - Combine with legitimate gameplay
 - Take frequent breaks
 
+**New RS3 Tools**:
+- **RS3 Preset Cards**: Use the Gathering, Revolution Assist, or Skilling presets in the GUI to instantly load conservative delay ranges, hotkeys, and mouse buttons tuned for each activity.
+- **RS3 Action Mode**: Select the `RS3 ACTION` click mode to unlock ability rotations. Configure comma-separated ability keys, shuffle behavior, and micro-break odds in the RS3 Action Bar panel.
+- **Micro Breaks**: Adjust pause probability/durations to mimic human hesitation between rotations—higher pauses are safer for combat scenarios.
+- **Complement Revolution**: Keep in-game Revolution running and let the action mode lightly tap abilities to avoid idle timers rather than spamming full rotations.
+
+---
+
+### League of Legends / Teamfight Tactics
+
+**Overview**: Fast-paced MOBA and its auto-battler mode where players often need to react to visual prompts (queue accept, TFT “Ready”, shop refreshes).
+
+**Image Recognition Watcher**:
+- Point the UI to a PNG template (for example, a cropped screenshot of the "ACCEPT" button).
+- Define the exact screen region (X/Y/Width/Height) to monitor—smaller regions are faster and more accurate.
+- Choose how often to scan (750ms default) and tweak sensitivity:
+  - **Max diff ratio** controls how many pixels can mismatch (lower = stricter).
+  - **Pixel threshold** tunes pixelmatch sensitivity (lower detects smaller differences).
+- Enable **Auto Click** to immediately left-click the detected location (offsets help target the center of the button).
+
+**Common Use Cases**:
+- Auto-accept LoL ranked queues while alt-tabbed.
+- Detect TFT “Ready” confirmation, buy/refresh buttons, or stage transition banners by providing the relevant art as a template.
+- Notify or click when rune suggestions, augment popups, or store resets appear (when paired with custom offsets).
+
+**Safety Tips**:
+- Keep scan regions as tight as possible (just the button/area of interest).
+- Use conservative sensitivity first to avoid false positives; TFT has many overlapping UI flashes.
+- Monitor the watcher output in the GUI—it reports last detection time and any matching errors.
+- Remember that automation is against Riot’s Terms of Service; use strictly at your own risk.
+
 ---
 
 ### Minecraft

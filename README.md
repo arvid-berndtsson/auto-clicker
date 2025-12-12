@@ -19,6 +19,19 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 - **Color Recognition**: Detect specific colors in screen regions for conditional automation.
 - **Image Recognition**: Basic support for finding images on screen (extensible for advanced use cases).
 - **Sequence Management**: Save, load, play, and delete recorded sequences with an intuitive UI.
+- **RS3 Aware Mode**: Dedicated RuneScape 3 presets plus an action-bar rotation engine that simulates ability presses, micro breaks, and configurable pause behavior to better complement in-game Revolution.
+- **League Image Recognition**: Template-based detection that can watch for on-screen prompts (e.g., LoL queue Accept) and optionally auto-click when matched.
+
+### RuneScape 3 Enhancements
+- Built-in RS3 preset cards for Gathering, Combat (Revolution Assist), and Skilling tweak both click timing and key bindings with a single click.
+- A specialized **RS3 Action Bar** mode lets you define ability rotations, shuffle order per loop, and inject micro breaks to mimic real players.
+- Per-profile ability lists, pause probabilities, and custom delay ranges make it safer to pair the clicker with AFK-friendly skills.
+
+### League of Legends / TFT Toolkit
+- Provide any on-screen template (PNG) and the clicker will continuously scan a defined region for that image using pixel-level matching.
+- Configure poll rate, detection sensitivity, click offsets, and whether to auto-click when the template is detected (perfect for LoL queue Accepts or TFT “Ready” buttons).
+- Prebuilt presets for League accept dialogs and TFT Ready/Buy prompts make it easy to get started; you can also save your own configurations for alternate regions or resolutions.
+- Real-time watcher telemetry in the UI shows last match coordinates, errors, and lets you start/stop the monitor without restarting the clicker.
 
 ## Repository Layout
 

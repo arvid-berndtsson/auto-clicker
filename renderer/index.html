@@ -81,6 +81,10 @@
               <button class="mode-btn" data-mode="burst">
                 <span class="mode-label">BURST</span>
               </button>
+              <button class="mode-btn rs3-mode-btn" data-mode="rs3-action">
+                <span class="mode-label">RS3 ACTION</span>
+                <span class="mode-subtext">Action bar rotation</span>
+              </button>
             </div>
             <select id="mode" class="hidden-select" aria-label="Clicking mode">
               <option value="toggle">Toggle</option>
@@ -88,7 +92,99 @@
               <option value="double">Double</option>
               <option value="random">Random</option>
               <option value="burst">Burst</option>
+              <option value="rs3-action">RS3 Action</option>
             </select>
+          </div>
+
+          <!-- RS3 Quick Profiles -->
+          <div class="settings-group">
+            <div class="group-heading">
+              <h3 class="group-title">RS3 PRESETS</h3>
+              <p class="group-note">One-click settings tuned for RuneScape 3.</p>
+            </div>
+            <div class="profile-grid" id="rs3Profiles">
+              <article
+                class="profile-card"
+                data-profile="RS3 Gathering Pulse"
+                data-mode="random"
+                data-min-delay="1200"
+                data-max-delay="2600"
+                data-button="left"
+                data-click-key="h"
+                data-stop-key="esc"
+              >
+                <header class="profile-header">
+                  <span class="profile-label">Gathering</span>
+                  <h4 class="profile-name">Pulse Automation</h4>
+                </header>
+                <p class="profile-summary">
+                  Keeps woodcutting, mining, or divination nodes alive with gentle randomization.
+                </p>
+                <ul class="profile-meta">
+                  <li>Random mode</li>
+                  <li>1.2s - 2.6s delay</li>
+                  <li>Left click</li>
+                </ul>
+                <button class="profile-apply-btn" type="button">APPLY</button>
+              </article>
+
+              <article
+                class="profile-card"
+                data-profile="RS3 Revolution Assist"
+                data-mode="rs3-action"
+                data-min-delay="700"
+                data-max-delay="1100"
+                data-button="left"
+                data-click-key="h"
+                data-stop-key="esc"
+                data-rs3-ability-keys="1,2,3,4,5,6"
+                data-rs3-min-ability-delay="650"
+                data-rs3-max-ability-delay="1200"
+                data-rs3-shuffle="true"
+                data-rs3-pause-chance="18"
+                data-rs3-pause-min="1800"
+                data-rs3-pause-max="3200"
+              >
+                <header class="profile-header">
+                  <span class="profile-label">Combat</span>
+                  <h4 class="profile-name">Revolution Assist</h4>
+                </header>
+                <p class="profile-summary">
+                  Cycles through ability keys to complement Revolution while sprinkling safe pauses.
+                </p>
+                <ul class="profile-meta">
+                  <li>RS3 Action mode</li>
+                  <li>Ability keys 1-6</li>
+                  <li>0.65s - 1.2s delay</li>
+                </ul>
+                <button class="profile-apply-btn" type="button">APPLY</button>
+              </article>
+
+              <article
+                class="profile-card"
+                data-profile="RS3 Skilling Anchor"
+                data-mode="hold"
+                data-min-delay="1800"
+                data-max-delay="3600"
+                data-button="left"
+                data-click-key="j"
+                data-stop-key="esc"
+              >
+                <header class="profile-header">
+                  <span class="profile-label">Skilling</span>
+                  <h4 class="profile-name">Anchor Mode</h4>
+                </header>
+                <p class="profile-summary">
+                  Conservative hold mode for AFK-friendly skills such as Archaeology or Smithing.
+                </p>
+                <ul class="profile-meta">
+                  <li>Hold mode</li>
+                  <li>1.8s - 3.6s delay</li>
+                  <li>Left click</li>
+                </ul>
+                <button class="profile-apply-btn" type="button">APPLY</button>
+              </article>
+            </div>
           </div>
 
           <!-- Click Settings -->
@@ -138,6 +234,209 @@
                 max="100"
               />
             </div>
+          </div>
+
+          <!-- RS3 Action Bar Config -->
+          <div class="settings-group rs3-config hidden" id="rs3ConfigPanel" aria-hidden="true">
+            <div class="group-heading">
+              <h3 class="group-title">RS3 ACTION BAR</h3>
+              <p class="group-note">
+                Configure ability rotations for the RS3 Action mode. Use alongside in-game Revolution and
+                monitor frequently.
+              </p>
+            </div>
+
+            <div class="setting-item vertical">
+              <div>
+                <label class="setting-name" for="rs3AbilityKeys">Ability Rotation</label>
+                <p class="field-hint">Comma or space separated keys (e.g. 1,2,3,4,5,6).</p>
+              </div>
+              <textarea
+                id="rs3AbilityKeys"
+                class="game-textarea"
+                rows="2"
+                spellcheck="false"
+              >1,2,3,4,5,6</textarea>
+            </div>
+
+            <div class="setting-item">
+              <label class="setting-name">Ability Delay (ms)</label>
+              <div class="delay-control">
+                <input
+                  type="number"
+                  id="rs3MinAbilityDelay"
+                  class="game-input"
+                  value="800"
+                  min="200"
+                  max="5000"
+                />
+                <span class="delay-sep">TO</span>
+                <input
+                  type="number"
+                  id="rs3MaxAbilityDelay"
+                  class="game-input"
+                  value="1400"
+                  min="200"
+                  max="5000"
+                />
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label class="setting-name" for="rs3ShuffleRotation">Shuffle Rotation</label>
+              <div class="toggle-row">
+                <input type="checkbox" id="rs3ShuffleRotation" class="toggle-input" checked />
+                <span class="field-hint">Randomizes each pass through the listed keys.</span>
+              </div>
+            </div>
+
+            <div class="setting-item vertical">
+              <div>
+                <label class="setting-name" for="rs3PauseChance">Micro Breaks</label>
+                <p class="field-hint">
+                  Chance (%) to insert a longer pause between rotations for anti-detection.
+                </p>
+              </div>
+              <div class="micro-break-grid">
+                <input
+                  type="number"
+                  id="rs3PauseChance"
+                  class="game-input"
+                  value="15"
+                  min="0"
+                  max="50"
+                />
+                <div class="delay-control">
+                  <input
+                    type="number"
+                    id="rs3PauseMin"
+                    class="game-input"
+                    value="1500"
+                    min="500"
+                    max="10000"
+                  />
+                  <span class="delay-sep">TO</span>
+                  <input
+                    type="number"
+                    id="rs3PauseMax"
+                    class="game-input"
+                    value="3200"
+                    min="500"
+                    max="10000"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- League of Legends Support -->
+          <div class="settings-group league-support">
+            <div class="group-heading">
+              <h3 class="group-title">LEAGUE OF LEGENDS</h3>
+              <p class="group-note">
+                Use image recognition to auto-click prompts like the queue Accept button. Provide a template
+                screenshot (.png) and screen region to scan.
+              </p>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name" for="lolTemplatePath">Template Image Path</label>
+              <input
+                type="text"
+                id="lolTemplatePath"
+                class="game-input full-width"
+                placeholder="/path/to/accept.png"
+              />
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Scan Region (px)</label>
+              <div class="league-region-grid">
+                <input type="number" id="lolRegionX" class="game-input" placeholder="X" value="0" />
+                <input type="number" id="lolRegionY" class="game-input" placeholder="Y" value="0" />
+                <input type="number" id="lolRegionWidth" class="game-input" placeholder="Width" value="400" />
+                <input type="number" id="lolRegionHeight" class="game-input" placeholder="Height" value="400" />
+              </div>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name" for="lolPollInterval">Poll Interval (ms)</label>
+              <input
+                type="number"
+                id="lolPollInterval"
+                class="game-input full-width"
+                value="750"
+                min="250"
+              />
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Auto Click</label>
+              <div class="league-autoclick-row">
+                <label class="toggle-row">
+                  <input type="checkbox" id="lolAutoClick" class="toggle-input" checked />
+                  <span class="field-hint">Click when the template is found</span>
+                </label>
+                <div class="delay-control">
+                  <input
+                    type="number"
+                    id="lolClickOffsetX"
+                    class="game-input"
+                    placeholder="Offset X"
+                    value="30"
+                  />
+                  <span class="delay-sep">/</span>
+                  <input
+                    type="number"
+                    id="lolClickOffsetY"
+                    class="game-input"
+                    placeholder="Offset Y"
+                    value="15"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item vertical">
+              <label class="setting-name">Match Sensitivity</label>
+              <div class="league-sensitivity-grid">
+                <div>
+                  <label class="field-hint" for="lolDiffRatio">Max diff ratio (0.01-0.5)</label>
+                  <input
+                    type="number"
+                    id="lolDiffRatio"
+                    class="game-input"
+                    value="0.12"
+                    step="0.01"
+                    min="0.01"
+                    max="0.5"
+                  />
+                </div>
+                <div>
+                  <label class="field-hint" for="lolPixelThreshold">Pixel threshold (0.01-1)</label>
+                  <input
+                    type="number"
+                    id="lolPixelThreshold"
+                    class="game-input"
+                    value="0.15"
+                    step="0.01"
+                    min="0.01"
+                    max="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="league-actions">
+              <button id="lolStartWatcherBtn" class="game-btn">
+                <span class="btn-text">START WATCH</span>
+              </button>
+              <button id="lolStopWatcherBtn" class="game-btn" disabled>
+                <span class="btn-text">STOP</span>
+              </button>
+            </div>
+
+            <p class="info-text" id="lolWatcherStatus">Watcher idle.</p>
           </div>
 
           <!-- Hotkeys -->

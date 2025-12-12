@@ -27,9 +27,10 @@ Cross-platform auto clicker built with Electron for a modern, unified user exper
 - A specialized **RS3 Action Bar** mode lets you define ability rotations, shuffle order per loop, and inject micro breaks to mimic real players.
 - Per-profile ability lists, pause probabilities, and custom delay ranges make it safer to pair the clicker with AFK-friendly skills.
 
-### League of Legends Toolkit
+### League of Legends / TFT Toolkit
 - Provide any on-screen template (PNG) and the clicker will continuously scan a defined region for that image using pixel-level matching.
-- Configure poll rate, detection sensitivity, click offsets, and whether to auto-click when the template is detected (perfect for instant queue Accepts or rune prompts).
+- Configure poll rate, detection sensitivity, click offsets, and whether to auto-click when the template is detected (perfect for LoL queue Accepts or TFT “Ready” buttons).
+- Prebuilt presets for League accept dialogs and TFT Ready/Buy prompts make it easy to get started; you can also save your own configurations for alternate regions or resolutions.
 - Real-time watcher telemetry in the UI shows last match coordinates, errors, and lets you start/stop the monitor without restarting the clicker.
 
 ## Repository Layout

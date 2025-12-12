@@ -127,9 +127,9 @@ Always check the game's Terms of Service before using automation tools. The deve
 
 ---
 
-### League of Legends
+### League of Legends / Teamfight Tactics
 
-**Overview**: Fast-paced MOBA where players often want to instantly accept queues or react to visual prompts.
+**Overview**: Fast-paced MOBA and its auto-battler mode where players often need to react to visual prompts (queue accept, TFT “Ready”, shop refreshes).
 
 **Image Recognition Watcher**:
 - Point the UI to a PNG template (for example, a cropped screenshot of the "ACCEPT" button).
@@ -140,15 +140,15 @@ Always check the game's Terms of Service before using automation tools. The deve
 - Enable **Auto Click** to immediately left-click the detected location (offsets help target the center of the button).
 
 **Common Use Cases**:
-- Auto-accept match queues while alt-tabbed.
-- Notify or click when revive/recall prompts appear (when paired with external notification logic).
-- Detect shop, rune, or inventory popups by supplying their icons.
+- Auto-accept LoL ranked queues while alt-tabbed.
+- Detect TFT “Ready” confirmation, buy/refresh buttons, or stage transition banners by providing the relevant art as a template.
+- Notify or click when rune suggestions, augment popups, or store resets appear (when paired with custom offsets).
 
 **Safety Tips**:
 - Keep scan regions as tight as possible (just the button/area of interest).
-- Use conservative sensitivity first to avoid false positives.
+- Use conservative sensitivity first to avoid false positives; TFT has many overlapping UI flashes.
 - Monitor the watcher output in the GUI—it reports last detection time and any matching errors.
-- Remember that automation is against LoL's Terms of Service; use strictly at your own risk.
+- Remember that automation is against Riot’s Terms of Service; use strictly at your own risk.
 
 ---
 
